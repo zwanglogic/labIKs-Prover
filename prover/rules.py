@@ -19,9 +19,27 @@ def rule_bot_in(G : Sequent) -> list[Sequent]:
                 return []
     return []
 
+def rule_and_in(G : Sequent) -> list[Sequent]:
+    for f in G.formulas:
+        match f:
+            case LFormula(label = l, formula = And(left,right), polarity = Polarity.IN):
+                lst = [] 
+                for g in G.formulas:
+                        lst.append(g)
+
+                a = LFormula(l,left, Polarity.IN)
+                b = LFormula(l,right, Polarity.IN)
+                if a not in lst and b not in lst:
+                    lst.append(a)
+                    lst.append(b)
+                seq = Sequent(G.relations,lst)
+                return [seq]
+    return []
+
 RULES = [
     rule_id,
-    rule_bot_in
+    rule_bot_in,
+    rule_and_in
 ]
 
 def apply_rules(G : Sequent) -> list[Sequent]:
@@ -35,10 +53,12 @@ def apply_rules(G : Sequent) -> list[Sequent]:
     
 # test 
 x = Label("x")
-A = Bot()
+p = Prop("p")
+q = Prop("q")
+phi = And(p,q)
 
 G = Sequent([], [
-    LFormula(x, A, Polarity.IN),
+    LFormula(x, phi, Polarity.IN),
     
 ])
 

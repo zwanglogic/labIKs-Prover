@@ -131,10 +131,7 @@ class Sequent:
             last = self.relations[-1]
             for r in self.relations:
                 s += r.__str__()
-                if r != last:
-                    s += ", "
-
-        s = s + ", "
+                s += ", "
 
         if len(self.formulas) > 0:
             last = self.formulas[-1]
@@ -146,6 +143,9 @@ class Sequent:
         return s
     
     def __str__(self):
+        return self.to_string()
+    
+    def __repr__(self):
         return self.to_string()
     
 # test
