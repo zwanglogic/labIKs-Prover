@@ -12,10 +12,16 @@ def rule_id(G : Sequent) -> list[Sequent]:
                             return []
     return []
 
-
+def rule_bot_in(G : Sequent) -> list[Sequent]:
+    for f in G.formulas:
+        match f:
+            case LFormula(label = l, formula = Bot(), polarity = Polarity.IN):
+                return []
+    return []
 
 RULES = [
     rule_id,
+    rule_bot_in
 ]
 
 def apply_rules(G : Sequent) -> list[Sequent]:
@@ -27,13 +33,13 @@ def apply_rules(G : Sequent) -> list[Sequent]:
         
     return [] # no rule can be applied
     
-# test rule_id
+# test 
 x = Label("x")
-A = Prop("A")
+A = Bot()
 
 G = Sequent([], [
     LFormula(x, A, Polarity.IN),
-    LFormula(x, A, Polarity.OUT)
+    
 ])
 
 print("conclusion:", G)
