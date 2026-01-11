@@ -163,7 +163,8 @@ RULES = [
     rule_or_out,
     rule_and_out,
     rule_or_in,
-    rule_imp_in
+    rule_imp_in,
+    rule_imp_out
 ]
 
 def apply_rules(G : Sequent) -> list[Sequent]:
@@ -175,20 +176,12 @@ def apply_rules(G : Sequent) -> list[Sequent]:
         
     return [] # no rule can be applied
 
-def all_labels(G : Sequent) -> list[Label]:
-    lst = []
+def print_premises(premises: list[Sequent]):
+    i = 1
+    for seq in premises:
+        print(f"premise {i}: {seq}")
+        i += 1
 
-    for relation in G.relations:
-        if relation.left not in lst:
-            lst.append(relation.left)
-        if relation.right not in lst:
-            lst.append(relation.right)
-    
-    for formula in G.formulas:
-        if formula.label not in lst:
-            lst.append(formula.label)
-    
-    return lst
     
 # test 
 x = Label("x")
@@ -202,4 +195,7 @@ G = Sequent([], [
 ])
 
 print("conclusion:", G)
-print("premise:", apply_rules(G))
+
+x = apply_rules(G)
+
+print_premises(x)
