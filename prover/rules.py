@@ -129,7 +129,32 @@ def rule_imp_in(G : Sequent) -> list[Sequent]:
                 seq2 = Sequent(G.relations,lst2)
 
                 return [seq1,seq2]
-    return []      
+    return []    
+
+def rule_imp_out(G : Sequent) -> list[Sequent]:
+    for f in G.formulas:
+        match f:
+            case LFormula(label = l, formula = Imp(left,right), polarity = Polarity.OUT):
+                lst = [] 
+                for g in G.formulas:
+                        lst.append(g)
+
+                new_lab = new_label(G)
+                new_rel = Preorder(l,new_lab)
+
+                lst2 = [] 
+                for r in G.relations:
+                        lst2.append(r)
+                lst2.append(new_rel)
+                
+                a = LFormula(new_lab,left, Polarity.IN)
+                b = LFormula(new_lab,right, Polarity.OUT)
+                if a not in lst and b not in lst:
+                    lst.append(a)
+                    lst.append(b)
+                seq = Sequent(lst2,lst)
+                return [seq]
+    return []  
 
 RULES = [
     rule_id,

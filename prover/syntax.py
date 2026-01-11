@@ -166,3 +166,14 @@ def all_labels(G : Sequent) -> list[Label]:
             lst.append(formula.label)
     
     return lst
+
+def new_label(G : Sequent) -> Label:
+    lst = all_labels(G)
+
+    i = 0
+    while True:
+        name = f"x{i}"
+        lab = Label(name)
+        if lab not in lst:
+            return lab
+        i += 1
