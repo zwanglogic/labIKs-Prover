@@ -107,6 +107,9 @@ class Preorder:
     def __str__(self):
         return f"{self.left} <= {self.right}"
     
+    def __repr__(self):
+        return f"{self.left} <= {self.right}"
+    
 
 # test
 x = Label("x")
