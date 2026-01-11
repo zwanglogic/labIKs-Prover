@@ -53,6 +53,7 @@ def rule_or_out(G : Sequent) -> list[Sequent]:
                 return [seq]
     return []
 
+
 RULES = [
     rule_id,
     rule_bot_in,
@@ -68,6 +69,21 @@ def apply_rules(G : Sequent) -> list[Sequent]:
             return x # successfully apply
         
     return [] # no rule can be applied
+
+def all_labels(G : Sequent) -> list[Label]:
+    lst = []
+
+    for relation in G.relations:
+        if relation.left not in lst:
+            lst.append(relation.left)
+        if relation.right not in lst:
+            lst.append(relation.right)
+    
+    for formula in G.formulas:
+        if formula.label not in lst:
+            lst.append(formula.label)
+    
+    return lst
     
 # test 
 x = Label("x")

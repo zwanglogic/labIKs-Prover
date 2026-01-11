@@ -151,3 +151,18 @@ class Sequent:
 # test
 s = Sequent([Preorder(x,y)],[A,f])
 print(s)
+
+def all_labels(G : Sequent) -> list[Label]:
+    lst = []
+
+    for relation in G.relations:
+        if relation.left not in lst:
+            lst.append(relation.left)
+        if relation.right not in lst:
+            lst.append(relation.right)
+    
+    for formula in G.formulas:
+        if formula.label not in lst:
+            lst.append(formula.label)
+    
+    return lst
