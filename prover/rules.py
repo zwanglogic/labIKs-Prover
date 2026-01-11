@@ -53,12 +53,92 @@ def rule_or_out(G : Sequent) -> list[Sequent]:
                 return [seq]
     return []
 
+def rule_and_out(G : Sequent) -> list[Sequent]:
+    for f in G.formulas:
+        match f:
+            case LFormula(label = l, formula = And(left, right), polarity = Polarity.OUT):
+                lst1 = []
+
+                for g in G.formulas:
+                        lst1.append(g)
+
+                a = LFormula(l,left, Polarity.OUT)
+                if a not in lst1:
+                    lst1.append(a)
+                seq1 = Sequent(G.relations,lst1)
+
+                lst2 = []
+                for g in G.formulas:
+                        lst2.append(g)
+
+                b = LFormula(l,right, Polarity.OUT)
+                if b not in lst2:
+                    lst2.append(b)
+                seq2 = Sequent(G.relations,lst2)
+
+                return [seq1,seq2]
+    return []        
+
+def rule_or_in(G : Sequent) -> list[Sequent]:
+    for f in G.formulas:
+        match f:
+            case LFormula(label = l, formula = Or(left, right), polarity = Polarity.IN):
+                lst1 = []
+
+                for g in G.formulas:
+                        lst1.append(g)
+
+                a = LFormula(l,left, Polarity.IN)
+                if a not in lst1:
+                    lst1.append(a)
+                seq1 = Sequent(G.relations,lst1)
+
+                lst2 = []
+                for g in G.formulas:
+                        lst2.append(g)
+
+                b = LFormula(l,right, Polarity.IN)
+                if b not in lst2:
+                    lst2.append(b)
+                seq2 = Sequent(G.relations,lst2)
+
+                return [seq1,seq2]
+    return []      
+
+def rule_imp_in(G : Sequent) -> list[Sequent]:
+    for f in G.formulas:
+        match f:
+            case LFormula(label = l, formula = Imp(left, right), polarity = Polarity.IN):
+                lst1 = []
+
+                for g in G.formulas:
+                        lst1.append(g)
+
+                a = LFormula(l,left, Polarity.OUT)
+                if a not in lst1:
+                    lst1.append(a)
+                seq1 = Sequent(G.relations,lst1)
+
+                lst2 = []
+                for g in G.formulas:
+                        lst2.append(g)
+
+                b = LFormula(l,right, Polarity.IN)
+                if b not in lst2:
+                    lst2.append(b)
+                seq2 = Sequent(G.relations,lst2)
+
+                return [seq1,seq2]
+    return []      
 
 RULES = [
     rule_id,
     rule_bot_in,
     rule_and_in,
-    rule_or_out
+    rule_or_out,
+    rule_and_out,
+    rule_or_in,
+    rule_imp_in
 ]
 
 def apply_rules(G : Sequent) -> list[Sequent]:
@@ -92,7 +172,7 @@ q = Prop("q")
 phi = Or(p,q)
 
 G = Sequent([], [
-    LFormula(x, phi, Polarity.OUT),
+    LFormula(x, phi, Polarity.IN),
     
 ])
 
