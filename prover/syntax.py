@@ -128,7 +128,7 @@ class Sequent:
     formulas : list[LFormula]
 
     def to_string(self):
-        s = ""
+        s = "["
 
         if len(self.relations) > 0:
             last = self.relations[-1]
@@ -142,7 +142,7 @@ class Sequent:
                 s += f.__str__()
                 if f != last:
                     s += ", "
-
+        s = s + "]"
         return s
     
     def __str__(self):
