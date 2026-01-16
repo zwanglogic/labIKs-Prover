@@ -81,6 +81,23 @@ def is_happy_sequent(G: Sequent) -> bool:
 
     return True
 
+def is_almost_happy_formula(G: Sequent, f: LFormula) -> bool:
+    if f not in G.formulas:
+        raise ValueError("formula not in sequent")
+
+    if is_happy_formula(G, f):
+        return True
+
+    match f:
+        case LFormula(_, Bot(), Polarity.IN):      
+            return True
+        case LFormula(_, Prop(_), Polarity.OUT):   
+            return True
+        case LFormula(_, Imp(_, _), Polarity.OUT): 
+            return True
+        case _:
+            return False
+
 
 # test
 x = Label("x")
