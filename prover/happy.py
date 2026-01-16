@@ -1,4 +1,5 @@
 from syntax import *
+from closure import *
 
 def is_happy_formula(G: Sequent, f : LFormula) -> bool:
     if f not in G.formulas:
@@ -58,6 +59,28 @@ def is_happy_formula(G: Sequent, f : LFormula) -> bool:
                     return False
     raise NotImplementedError
 
+def is_happy_label(G: Sequent, x: Label) -> bool:
+    for f in G.formulas:
+        if f.label == x:
+            if not is_happy_formula(G, f):
+                return False
+    return True
+
+def is_happy_sequent(G: Sequent) -> bool:
+    G_closed = closure(G)
+
+    # structural happiness
+    if set(G_closed.relations) != set(G.relations):
+        return False
+    if set(G_closed.formulas) != set(G.formulas):
+        return False
+
+    for l in all_labels(G):
+        if not is_happy_label(G, l):
+            return False
+
+    return True
+
 
 # test
 x = Label("x")
@@ -75,3 +98,19 @@ G = Sequent(
 )
 
 print(is_happy_formula(G, LFormula(x, Imp(A,B), Polarity.OUT)))
+
+x = Label("x")
+y = Label("y")
+A = Prop("A")
+
+G = Sequent(
+    relations=[
+        Preorder(x, y)
+    ],
+    formulas=[
+        LFormula(x, A, Polarity.IN)
+    ]
+)
+
+
+print(is_happy_sequent(G)) 

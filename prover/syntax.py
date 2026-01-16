@@ -6,7 +6,7 @@ class Formula:
    pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Prop(Formula):
     p: str
 
@@ -14,13 +14,13 @@ class Prop(Formula):
         return self.p
 
 
-@dataclass
+@dataclass(frozen=True)
 class Bot(Formula):
     def __str__(self):
         return "bot"
 
 
-@dataclass
+@dataclass(frozen=True)
 class And(Formula):
     left: Formula
     right: Formula
@@ -29,7 +29,7 @@ class And(Formula):
         return f"{self.left} and {self.right}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Or(Formula):
     left: Formula
     right: Formula
@@ -38,7 +38,7 @@ class Or(Formula):
         return f"{self.left} or {self.right}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Imp(Formula):
     left: Formula
     right: Formula
@@ -59,7 +59,7 @@ print(f)
 # Labels
 
 
-@dataclass
+@dataclass(frozen=True)
 class Label:
     name : str
     
@@ -77,7 +77,7 @@ class Polarity:
 # Labelled formulas
 
 
-@dataclass
+@dataclass(frozen=True)
 class LFormula:
     label : Label
     formula : Formula
@@ -99,7 +99,7 @@ print(f2)
 
 # Preorder relation
 
-@dataclass
+@dataclass(frozen=True)
 class Preorder:
     left : Label
     right : Label
@@ -122,7 +122,7 @@ print(f)
 # Sequent
 
 
-@dataclass
+@dataclass(frozen=True)
 class Sequent:
     relations : list[Preorder]
     formulas : list[LFormula]
