@@ -1,4 +1,5 @@
 from syntax import *
+from closure import *
 
 # each rule is a fuction of type Sequent -> list[Sequent]
 
@@ -167,14 +168,17 @@ RULES = [
     rule_imp_out
 ]
 
-def apply_rules(G : Sequent) -> list[Sequent]:
-    for rule in RULES:
-        x = rule(G) # x is the resulf of application of the rule
+# Given a sequent, return all possible one step applications
+def apply_rules(G : Sequent, set_of_rules : list) -> list[list[Sequent]]:
+    lst = []
 
-        if x: 
-            return x # successfully apply
+    for rule in set_of_rules:
+        outcome = rule(G)
+        lst.append(outcome)
         
-    return [] # no rule can be applied
+    return lst
+          
+     
 
 def print_premises(premises: list[Sequent]):
     i = 1
