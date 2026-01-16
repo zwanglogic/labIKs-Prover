@@ -26,42 +26,60 @@ def transitivity(G: Sequent):
     if changed:
         transitivity(G)
 
-# reflexive transitive closure
+
+def monotonicity(G: Sequent):
+    changed = False
+    rel = G.relations.copy()
+    formulas = G.formulas.copy()
+
+    for r in rel:
+        for f in formulas:
+            if f.label == r.left and f.polarity == Polarity.IN:
+                form = LFormula(r.right, f.formula, Polarity.IN)
+                if form not in G.formulas:
+                    G.formulas.append(form)
+                    changed = True
+
+    if changed:
+        monotonicity(G)
+
+
+# reflexive transitive monotonicity closure
 def closure(G: Sequent) -> Sequent:
     newG = Sequent(G.relations.copy(), G.formulas.copy())
 
-    old_size = -1
-    while old_size != len(newG.relations):
-        old_size = len(newG.relations)
+    old_state = None
+    while old_state != (len(newG.relations), len(newG.formulas)):
+        old_state = (len(newG.relations), len(newG.formulas))
         reflexivity(newG)
         transitivity(newG)
+        monotonicity(newG)
 
     return newG
 
 # test
 x = Label("x")
 y = Label("y")
-
-G = Sequent([], [
-    LFormula(x, Prop("P"), Polarity.IN),
-    LFormula(y, Prop("Q"), Polarity.OUT),
-])
-
-G = closure(G)
-print(G.relations)
-
-
-x = Label("x")
-y = Label("y")
 z = Label("z")
 
-G = Sequent([
-    Preorder(x, y),
-    Preorder(y, z)
-], [])
+P = Prop("P")
 
-G = closure(G)
+G = Sequent(
+    relations=[
+        Preorder(x, y),
+        Preorder(y, z)
+    ],
+    formulas=[
+        LFormula(x, P, Polarity.IN)
+    ]
+)
 
-for r in G.relations:
-    print(r)
-    
+H = closure(G)
+
+print("Relations:")
+for r in H.relations:
+    print(" ", r)
+
+print("\nFormulas:")
+for f in H.formulas:
+    print(" ", f)

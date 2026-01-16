@@ -21,3 +21,15 @@ def is_closed(G : Sequent) -> bool:
 
     return False
 
+# a naive search algorithm. might not terminate.
+def dfs_search(G : Sequent) -> bool:
+    G = closure(G)
+
+    if is_closed(G):
+        return True
+    
+    for premises in apply_rules(G):
+        if dfs_search(premises):
+            return True
+    return False
+
