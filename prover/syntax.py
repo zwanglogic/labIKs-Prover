@@ -47,15 +47,6 @@ class Imp(Formula):
         return f"{self.left} -> {self.right}"
 
 
-#  test   
-A = Prop("A")
-B = Prop("B")
-
-f = Imp(A, Or(Bot(), And(A, B)))
-
-print(f)       
-
-
 # Labels
 
 
@@ -87,15 +78,6 @@ class LFormula:
         return f"{self.label} : {self.formula} {self.polarity}"
     
 
-    
-#test 
-
-x = Label("x")
-p = Prop("P")
-
-f2 = LFormula(x, p, Polarity.IN)
-print(f2)
-
 
 # Preorder relation
 
@@ -110,14 +92,6 @@ class Preorder:
     def __repr__(self):
         return f"{self.left} <= {self.right}"
     
-
-# test
-x = Label("x")
-y = Label("y")
-
-f = Preorder(x,y)
-print(f)
-
 
 # Sequent
 
@@ -157,9 +131,6 @@ class Sequent:
             self.formulas.copy()
         )
     
-# test
-s = Sequent([Preorder(x,y)],[A,f])
-print(s)
 
 def all_labels(G : Sequent) -> list[Label]:
     lst = []
