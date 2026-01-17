@@ -35,6 +35,30 @@ def lift_base(G : Sequent, x : Label, layer: set[Label]) -> Sequent:
     assert is_almost_happy_sequent(G), f"The input sequent {G} is not almost happy"
     assert x in layer, f"the label {x} is not in the layer {layer}"
     
-    pass
+    mapping = layer_mapping(G, layer)
+    labels = all_labels(G)
+
+    new_relations = []
+    new_formulas = []
+    
+    # condition 1
+    for l in mapping.values():
+       new_relations.append(Preorder(l,l))
+
+    # condition 2
+    for w in labels:
+        for old_y, new_y in mapping.items():
+            if Preorder(w,old_y) in G.relations:
+                new_relations.append(Preorder(w, new_y))
+    
+    # condition 4
+    for f in G.formulas:
+        if f.label in mapping and f.polarity == Polarity.IN:
+            new_y = mapping[f.label]
+            content = f.formula
+            new_formulas.append(LFormula(new_y, content, Polarity.IN))
+
+    return Sequent(new_relations, new_formulas)
+
     
     
