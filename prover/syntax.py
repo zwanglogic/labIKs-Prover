@@ -151,6 +151,12 @@ class Sequent:
     def __repr__(self):
         return self.to_string()
     
+    def copy(self):
+        return Sequent(
+            self.relations.copy(),
+            self.formulas.copy()
+        )
+    
 # test
 s = Sequent([Preorder(x,y)],[A,f])
 print(s)
