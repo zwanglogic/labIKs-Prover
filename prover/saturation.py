@@ -28,30 +28,3 @@ def saturation(G : Sequent) -> list[Sequent]:
             lst.extend(outcome)
 
     return leaves
-
-# test
-x = Label("x")
-
-P = Prop("P")
-Q = Prop("Q")
-
-phi = Imp(Or(P, Q), P)
-
-G0 = Sequent(
-    relations = [],
-    formulas = [
-        LFormula(x, phi, Polarity.OUT)
-    ]
-)
-
-print("Initial goal:")
-print(G0)
-
-leaves = saturation(G0)
-
-print("\nNumber of saturated leaves:", len(leaves))
-
-for i, L in enumerate(leaves):
-    print(f"\nLeaf {i}:")
-    print(L)
-    
