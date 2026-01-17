@@ -169,6 +169,7 @@ RULES = [
 ]
 
 def apply_one_rule(G : Sequent, set_of_rules : list) -> list[Sequent]:
+     G = closure(G)
      for rule in set_of_rules:
         result = rule(G)
         if result:         
