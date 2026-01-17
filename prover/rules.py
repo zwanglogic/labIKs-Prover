@@ -168,15 +168,12 @@ RULES = [
     rule_imp_out
 ]
 
-# Given a sequent, return all possible one step applications
-def apply_rules(G : Sequent, set_of_rules : list) -> list[list[Sequent]]:
-    lst = []
-
-    for rule in set_of_rules:
-        outcome = rule(G)
-        lst.append(outcome)
-        
-    return lst
+def apply_one_rule(G : Sequent, set_of_rules : list) -> list[Sequent]:
+     for rule in set_of_rules:
+        result = rule(G)
+        if result:         
+            return result
+     return None
           
      
 
