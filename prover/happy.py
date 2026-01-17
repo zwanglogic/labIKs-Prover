@@ -96,4 +96,18 @@ def is_almost_happy_label(G: Sequent, x : Label) -> bool:
             
     return True
 
+def is_almost_happy_sequent(G: Sequent) -> bool:
+    G_closed = closure(G)
+
+    # structural happiness
+    if set(G_closed.relations) != set(G.relations):
+        return False
+    if set(G_closed.formulas) != set(G.formulas):
+        return False
+
+    for l in all_labels(G):
+        if not is_almost_happy_label(G, l):
+            return False
+
+    return True
 
