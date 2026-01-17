@@ -19,7 +19,7 @@ def saturation(G : Sequent) -> list[Sequent]:
     leaves =[]
 
     while lst:
-        current_seq = lst.pop()
+        current_seq = lst.pop() # DFS
         outcome = apply_one_rule(current_seq, saturation_rules)
 
         if outcome == None:
@@ -29,3 +29,29 @@ def saturation(G : Sequent) -> list[Sequent]:
 
     return leaves
 
+# test
+x = Label("x")
+
+P = Prop("P")
+Q = Prop("Q")
+
+phi = Imp(Or(P, Q), P)
+
+G0 = Sequent(
+    relations = [],
+    formulas = [
+        LFormula(x, phi, Polarity.OUT)
+    ]
+)
+
+print("Initial goal:")
+print(G0)
+
+leaves = saturation(G0)
+
+print("\nNumber of saturated leaves:", len(leaves))
+
+for i, L in enumerate(leaves):
+    print(f"\nLeaf {i}:")
+    print(L)
+    

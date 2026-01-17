@@ -81,53 +81,19 @@ def is_happy_sequent(G: Sequent) -> bool:
 
     return True
 
-def is_almost_happy_formula(G: Sequent, f: LFormula) -> bool:
-    if f not in G.formulas:
-        raise ValueError("formula not in sequent")
-
-    if is_happy_formula(G, f):
-        return True
-
-    match f:
-        case LFormula(_, Bot(), Polarity.IN):      
-            return True
-        case LFormula(_, Prop(_), Polarity.OUT):   
-            return True
-        case LFormula(_, Imp(_, _), Polarity.OUT): 
-            return True
-        case _:
-            return False
+def is_almost_happy_label(G: Sequent, x : Label) -> bool:
+    for f in G.formulas:
+        if f.label == x:
+            match f:
+                case LFormula(_, Bot(), Polarity.IN):
+                    continue
+                case LFormula(_, Prop(_), Polarity.OUT):
+                    continue
+                case LFormula(_, Imp(_,_), Polarity.OUT):
+                    continue
+            if not is_happy_formula(G, f):
+                return False
+            
+    return True
 
 
-# test
-x = Label("x")
-y = Label("y")
-A = Prop("A")
-B = Prop("B")
-
-G = Sequent(
-    relations=[Preorder(x, y)],
-    formulas=[
-        LFormula(x, Imp(A,B), Polarity.OUT),
-        LFormula(y, A, Polarity.IN),
-        LFormula(y, B, Polarity.OUT),
-    ]
-)
-
-print(is_happy_formula(G, LFormula(x, Imp(A,B), Polarity.OUT)))
-
-x = Label("x")
-y = Label("y")
-A = Prop("A")
-
-G = Sequent(
-    relations=[
-        Preorder(x, y)
-    ],
-    formulas=[
-        LFormula(x, A, Polarity.IN)
-    ]
-)
-
-
-print(is_happy_sequent(G)) 

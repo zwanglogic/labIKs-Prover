@@ -185,14 +185,3 @@ def print_premises(premises: list[Sequent]):
         i += 1
 
     
-# test 
-x = Label("x")
-p = Prop("p")
-q = Prop("q")
-
-G = Sequent([], [
-    LFormula(x, Or(p, q), Polarity.IN),
-    LFormula(x, p, Polarity.OUT),
-])
-
-print("rule_or_in result:", rule_or_in(G))

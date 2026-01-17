@@ -57,29 +57,3 @@ def closure(G: Sequent) -> Sequent:
 
     return newG
 
-# test
-x = Label("x")
-y = Label("y")
-z = Label("z")
-
-P = Prop("P")
-
-G = Sequent(
-    relations=[
-        Preorder(x, y),
-        Preorder(y, z)
-    ],
-    formulas=[
-        LFormula(x, P, Polarity.IN)
-    ]
-)
-
-H = closure(G)
-
-print("Relations:")
-for r in H.relations:
-    print(" ", r)
-
-print("\nFormulas:")
-for f in H.formulas:
-    print(" ", f)
