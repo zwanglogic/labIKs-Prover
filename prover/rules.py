@@ -172,7 +172,8 @@ def apply_one_rule(G : Sequent, set_of_rules : list) -> list[Sequent]:
      G = closure(G)
      for rule in set_of_rules:
         result = rule(G)
-        if result:         
+        if result:      
+            print_step(G, rule.__name__, result)   
             return result
      return None
           

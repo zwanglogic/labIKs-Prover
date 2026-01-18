@@ -107,16 +107,21 @@ class Sequent:
         if len(self.relations) > 0:
             last = self.relations[-1]
             for r in self.relations:
-                s += r.__str__()
+                s += str(r)
+                if r != last:
+                    s += ", "
+
+            if len(self.formulas) > 0:
                 s += ", "
 
         if len(self.formulas) > 0:
             last = self.formulas[-1]
             for f in self.formulas:
-                s += f.__str__()
+                s += str(f)
                 if f != last:
                     s += ", "
-        s = s + "]"
+
+        s += "]"
         return s
     
     def __str__(self):
@@ -157,3 +162,17 @@ def new_label(G : Sequent) -> Label:
         if lab not in lst:
             return lab
         i += 1
+
+def print_step(G: Sequent, rule_name: str, premises: list[Sequent]):
+    print("Goal:")
+    print(" ", G)
+    print("Rule:", rule_name)
+    print("Result:")
+
+    if not premises:
+        print("  []")
+    else:
+        for p in premises:
+            print(" ", p)
+
+    print("-" * 30)

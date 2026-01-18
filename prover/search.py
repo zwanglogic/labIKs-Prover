@@ -1,6 +1,10 @@
 from rules import *
 from closure import *
 from syntax import *
+from layer import *
+from lift import *
+from saturation import *
+
 
 # if the sequent is initial
 def is_closed(G : Sequent) -> bool:
@@ -19,17 +23,5 @@ def is_closed(G : Sequent) -> bool:
                         case LFormula(label = l2, formula = Prop(p2), polarity = Polarity.OUT) if l1 == l2 and p1 == p2:
                             return True
 
-    return False
-
-# a naive search algorithm. might not terminate.
-def dfs_search(G : Sequent) -> bool:
-    G = closure(G)
-
-    if is_closed(G):
-        return True
-    
-    for premises in apply_rules(G):
-        if dfs_search(premises):
-            return True
     return False
 

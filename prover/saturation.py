@@ -11,20 +11,50 @@ saturation_rules = [
     rule_imp_in
 ]
 
-# consider the saturation as computing the fixpoint
+# dfs
 def saturation(G : Sequent) -> list[Sequent]:
-    G = closure(G)
+    stack = [closure(G)]
+    leaves = []
 
-    lst = [G.copy()]
-    leaves =[]
+    while stack:
+        current_seq = closure(stack.pop())
+        if is_almost_happy_sequent(current_seq):
+            print(f"{current_seq} is almost happy")
+            leaves.append(current_seq)
+            continue
 
-    while lst:
-        current_seq = lst.pop() # DFS
         outcome = apply_one_rule(current_seq, saturation_rules)
 
-        if outcome == None:
-            leaves.append(current_seq)
-        else:
-            lst.extend(outcome)
+        # not almost happy and no rule applicable
+        if outcome is None:
+            raise RuntimeError(
+                f"Saturation stuck (not almost happy, no rule applies):\n{current_seq}"
+            )
 
+        for child in outcome:
+            stack.append(closure(child)) # do closure again, just in case
+    
     return leaves
+
+# labels
+x = Label("x")
+
+# formulas
+p = Prop("p")
+q = Prop("q")
+
+# initial sequent
+G = Sequent(
+    relations=[],
+    formulas=[
+        LFormula(x, Or(p, q), Polarity.IN)
+    ]
+)
+
+leaves = saturation(G)
+
+print("Leaves:")
+for L in leaves:
+    print(L)
+        
+    
