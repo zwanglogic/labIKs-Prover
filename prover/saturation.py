@@ -37,46 +37,53 @@ def saturation(G : Sequent) -> list[Sequent]:
     
     return leaves
 
-# saturation with proof tree visualization
-def saturation_with_tree(G: Sequent) -> ProofNode:
+def saturation_tree(G: Sequent) -> ProofNode:
+    
     root = ProofNode(sequent=closure(G))
     stack = [root]
 
     while stack:
-        current = stack.pop()
-        current.sequent = closure(current.sequent)
+        current_node = stack.pop()
+        current_seq = closure(current_node.sequent)
 
-        if is_almost_happy_sequent(current.sequent):
+        # Case 1: leaf
+        if is_almost_happy_sequent(current_seq):
+            current_node.rule = None
+            current_node.children = []
             continue
 
-        applied = apply_one_rule_node(current, saturation_rules)
+        # Case 2: apply one saturation rule
+        result = apply_one_rule_tree(current_seq, saturation_rules)
 
-        if not applied:
+        if result is None:
+            # This should not happen if definitions are correct
             raise RuntimeError(
-                f"Saturation stuck (not almost happy, no rule applies):\n{current.sequent}"
+                "Saturation stuck: not almost happy, no rule applicable"
             )
 
-        stack.extend(current.children)
+        rule_name = apply_one_rule_tree.__last_rule_name__ \
+            if hasattr(apply_one_rule_tree, "__last_rule_name__") \
+            else "rule"
+
+        current_node.rule = rule_name
+        current_node.children = []
+
+        for seq in result:
+            child = ProofNode(sequent=seq)
+            current_node.children.append(child)
+            stack.append(child)
 
     return root
 
-# labels
-x = Label("x")
-
-# formulas
-p = Prop("p")
-q = Prop("q")
 r = Prop("r")
 
-phi = Or(And(p, q), r)
-
-# initial sequent
-G0 = Sequent(
+G = Sequent(
     relations=[Preorder(x, x)],
-    formulas=[LFormula(x, phi, Polarity.IN)]
+    formulas=[LFormula(x, Or(And(p, q), r), Polarity.IN)]
 )
 
+tree = saturation_tree(G)
 
-root = saturation_with_tree(G0)
-
-print_proof_tree(root)
+latex = export_proof_to_latex_document(tree)
+with open("sat.tex", "w") as f:
+    f.write(latex)

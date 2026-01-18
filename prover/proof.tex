@@ -1,0 +1,13 @@
+\documentclass{article}
+\usepackage{bussproofs}
+\usepackage[margin=1in]{geometry}
+\begin{document}
+
+\begin{prooftree}
+\AxiomC{$ x \le x\; , \; x:(p \lor q)^\bullet\; , \; x:p^\bullet $}
+\AxiomC{$ x \le x\; , \; x:(p \lor q)^\bullet\; , \; x:q^\bullet $}
+\RightLabel{$ \mathsf{or\_in} $}
+\BinaryInfC{$ x \le x\; , \; x:(p \lor q)^\bullet $}
+\end{prooftree}
+
+\end{document}
