@@ -36,25 +36,33 @@ def saturation(G : Sequent) -> list[Sequent]:
     
     return leaves
 
-# labels
 x = Label("x")
 
-# formulas
 p = Prop("p")
 q = Prop("q")
+r = Prop("r")
 
-# initial sequent
+phi = Imp(Or(And(p, q), r), p)
+
 G = Sequent(
     relations=[],
     formulas=[
-        LFormula(x, Or(p, q), Polarity.IN)
+        LFormula(x, phi, Polarity.IN),
+        LFormula(x, p, Polarity.OUT)   
     ]
 )
 
-leaves = saturation(G)
+print("Initial:")
+print(G)
 
-print("Leaves:")
-for L in leaves:
-    print(L)
-        
-    
+saturation(G)
+
+x = Label("x")
+p = Prop("p")
+q = Prop("q")
+
+G = Sequent([], [LFormula(x, And(p, q), Polarity.OUT)])
+print("almost happy?", is_almost_happy_sequent(closure(G)))
+print("saturation leaves:", saturation(G))
+
+
