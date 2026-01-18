@@ -2,6 +2,7 @@ from syntax import *
 from happy import *
 from closure import *
 from rules import *
+from prooftree import *
 
 saturation_rules = [
     rule_and_in,
@@ -36,33 +37,46 @@ def saturation(G : Sequent) -> list[Sequent]:
     
     return leaves
 
+# saturation with proof tree visualization
+def saturation_with_tree(G: Sequent) -> ProofNode:
+    root = ProofNode(sequent=closure(G))
+    stack = [root]
+
+    while stack:
+        current = stack.pop()
+        current.sequent = closure(current.sequent)
+
+        if is_almost_happy_sequent(current.sequent):
+            continue
+
+        applied = apply_one_rule_node(current, saturation_rules)
+
+        if not applied:
+            raise RuntimeError(
+                f"Saturation stuck (not almost happy, no rule applies):\n{current.sequent}"
+            )
+
+        stack.extend(current.children)
+
+    return root
+
+# labels
 x = Label("x")
 
+# formulas
 p = Prop("p")
 q = Prop("q")
 r = Prop("r")
 
-phi = Imp(Or(And(p, q), r), p)
+phi = Or(And(p, q), r)
 
-G = Sequent(
-    relations=[],
-    formulas=[
-        LFormula(x, phi, Polarity.IN),
-        LFormula(x, p, Polarity.OUT)   
-    ]
+# initial sequent
+G0 = Sequent(
+    relations=[Preorder(x, x)],
+    formulas=[LFormula(x, phi, Polarity.IN)]
 )
 
-print("Initial:")
-print(G)
 
-saturation(G)
+root = saturation_with_tree(G0)
 
-x = Label("x")
-p = Prop("p")
-q = Prop("q")
-
-G = Sequent([], [LFormula(x, And(p, q), Polarity.OUT)])
-print("almost happy?", is_almost_happy_sequent(closure(G)))
-print("saturation leaves:", saturation(G))
-
-
+print_proof_tree(root)

@@ -1,5 +1,6 @@
 from syntax import *
 from closure import *
+from prooftree import *
 
 # each rule is a fuction of type Sequent -> list[Sequent]
 
@@ -177,7 +178,25 @@ def apply_one_rule(G : Sequent, set_of_rules : list) -> list[Sequent]:
             return result
      return None
           
-     
+def apply_one_rule_node(node: ProofNode, rules: list) -> bool:
+    G = node.sequent
+
+    for rule in rules:
+        outcome = rule(G)
+
+        if outcome:
+            node.rule = rule.__name__
+
+            children = []
+            for new_seq in outcome:
+                child = ProofNode(sequent=new_seq)
+                children.append(child)
+
+            node.children = children
+            return True
+
+    
+    return False
 
 def print_premises(premises: list[Sequent]):
     i = 1

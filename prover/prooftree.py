@@ -13,31 +13,40 @@ class ProofNode:
     def is_leaf(self) -> bool:
         return len(self.children) == 0
 
-def print_proof_tree(node: ProofNode):
-    # print parent node
-    print(node.sequent)
-    print()
-
-    if node.rule is None:
-        print("(leaf)")
-        return
-
-    # print rule
-    print(f"  rule: {node.rule}")
-    print()
-
-    # print children
-    for i, child in enumerate(node.children):
-        is_last = (i == len(node.children) - 1)
+def print_proof_tree(node: ProofNode, prefix: str = "", is_last: bool = True, is_root: bool = True):
+    # Root node: print sequent alone (no branch chars)
+    if is_root:
+        print(node.sequent)
+        print()
+        if node.rule is None:
+            print("(leaf)")
+            return
+        print(f"  rule: {node.rule}")
+        print()
+    else:
         branch = "└─ " if is_last else "├─ "
-
-        line = branch + str(child.sequent)
-        if child.rule is None:
+        line = prefix + branch + str(node.sequent)
+        if node.rule is None and not node.children:
             line += "   (leaf)"
-
         print(line)
 
-        if not is_last:
+        # if leaf, stop
+        if node.rule is None or not node.children:
+            return
+
+        # blank line + rule
+        print(prefix + ("   " if is_last else "│  "))
+        print(prefix + ("   " if is_last else "│  ") + f"  rule: {node.rule}")
+        print(prefix + ("   " if is_last else "│  "))
+
+    # Prepare prefix for children
+    new_prefix = prefix + ("   " if is_last else "│  ")
+
+    # Print children recursively
+    for i, child in enumerate(node.children):
+        child_is_last = (i == len(node.children) - 1)
+        print_proof_tree(child, prefix=new_prefix, is_last=child_is_last, is_root=False)
+        if i != len(node.children) - 1:
             print()
 
     
