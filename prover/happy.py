@@ -110,4 +110,3 @@ def is_almost_happy_sequent(G: Sequent) -> bool:
             return False
 
     return True
-

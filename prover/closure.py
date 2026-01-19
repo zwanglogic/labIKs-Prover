@@ -56,4 +56,3 @@ def closure(G: Sequent) -> Sequent:
         monotonicity(newG)
 
     return newG
-

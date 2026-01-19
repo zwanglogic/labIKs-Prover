@@ -24,4 +24,3 @@ def is_closed(G : Sequent) -> bool:
                             return True
 
     return False
-

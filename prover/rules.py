@@ -1,5 +1,7 @@
 from syntax import *
 from closure import *
+from prooftree import *
+from happy import *
 
 # each rule is a fuction of type Sequent -> list[Sequent] or None
 
@@ -136,22 +138,54 @@ RULES = [
     rule_imp_out
 ]
 
-def apply_one_rule(G : Sequent, set_of_rules : list) -> list[Sequent]:
-     G = closure(G)
-     for rule in set_of_rules:
-        result = rule(G)
-        if result:      
-            print_step(G, rule.__name__, result)   
-            return result
-     return None
-          
-def apply_one_rule_tree(G: Sequent, rules: list):
+
+"""
+Try to apply one saturation rule to the sequent G.
+
+Notes:
+- A rule application is considered valid only if it produces
+    new information (i.e. changes the sequent), or closes the branch.
+- This function is responsible for rule scheduling and progress control.
+ """
+def try_apply_rule(G: Sequent, rules: list) -> list[Sequent] | None:
+
+    # Always work on the closure of G
+    Gc = closure(G)
+
+    old_forms = set(Gc.formulas)
+    old_rels  = set(Gc.relations)
+
     for rule in rules:
-        result = rule(G)
-        if result:
-            apply_one_rule_tree.__last_rule_name__ = rule.__name__
-            return result
-    return None
+        result = rule(Gc)
+
+        # Rule not applicable
+        if result is None:
+            continue
+
+        # Branch closed 
+        if result == []:
+            try_apply_rule.__last_rule_name__ = rule.__name__
+            return []
+
+        # Check whether the rule really makes progress
+        new_seqs = []
+        progressed = False
+
+        for seq in result:
+            seq_c = closure(seq)
+
+            if (
+                set(seq_c.formulas) != old_forms or
+                set(seq_c.relations) != old_rels
+            ):
+                progressed = True
+
+            new_seqs.append(seq_c)
+
+        # Accept this rule application only if progress is made
+        if progressed:
+            try_apply_rule.__last_rule_name__ = rule.__name__
+            return new_seqs
 
         # Otherwise: rule fired but changed nothing → ignore it
 
