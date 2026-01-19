@@ -2,161 +2,145 @@ from syntax import *
 from closure import *
 from prooftree import *
 
-# each rule is a fuction of type Sequent -> list[Sequent]
+# each rule is a fuction of type Sequent -> list[Sequent] or None
 
-def rule_id(G : Sequent) -> list[Sequent]:
+def rule_id(G: Sequent):
     for f1 in G.formulas:
         match f1:
-            case LFormula(label = l1, formula = Prop(p1), polarity = Polarity.IN):
+            case LFormula(l1, Prop(p1), Polarity.IN):
                 for f2 in G.formulas:
                     match f2:
-                        case LFormula(label = l2, formula = Prop(p2), polarity = Polarity.OUT) if l1 == l2 and p1 == p2:
-                            return []
-    return []
+                        case LFormula(l2, Prop(p2), Polarity.OUT) if l1 == l2 and p1 == p2:
+                            return []  # close branch
+    return None
 
-def rule_bot_in(G : Sequent) -> list[Sequent]:
+def rule_bot_in(G: Sequent):
+    for f in G.formulas:
+        if isinstance(f.formula, Bot) and f.polarity == Polarity.IN:
+            return []
+    return None
+
+def rule_and_in(G: Sequent):
     for f in G.formulas:
         match f:
-            case LFormula(label = l, formula = Bot(), polarity = Polarity.IN):
-                return []
-    return []
+            case LFormula(l, And(A, B), Polarity.IN):
+                a = LFormula(l, A, Polarity.IN)
+                b = LFormula(l, B, Polarity.IN)
 
-def rule_and_in(G : Sequent) -> list[Sequent]:
+                if a in G.formulas and b in G.formulas:
+                    return None   
+
+                new_forms = set(G.formulas)
+                new_forms.add(a)
+                new_forms.add(b)
+
+                return [Sequent(G.relations, list(new_forms))]
+    return None
+def rule_or_out(G: Sequent):
     for f in G.formulas:
         match f:
-            case LFormula(label = l, formula = And(left,right), polarity = Polarity.IN):
-                lst = [] 
-                for g in G.formulas:
-                        lst.append(g)
+            case LFormula(l, Or(A, B), Polarity.OUT):
+                a = LFormula(l, A, Polarity.OUT)
+                b = LFormula(l, B, Polarity.OUT)
 
-                a = LFormula(l,left, Polarity.IN)
-                b = LFormula(l,right, Polarity.IN)
-                if a not in lst and b not in lst:
-                    lst.append(a)
-                    lst.append(b)
-                seq = Sequent(G.relations,lst)
-                return [seq]
-    return []
+                if a in G.formulas and b in G.formulas:
+                    return None
 
-def rule_or_out(G : Sequent) -> list[Sequent]:
+                new_forms = set(G.formulas)
+                new_forms.add(a)
+                new_forms.add(b)
+
+                return [Sequent(G.relations, list(new_forms))]
+    return None
+
+def rule_and_out(G: Sequent):
     for f in G.formulas:
         match f:
-            case LFormula(label = l, formula = Or(left,right), polarity = Polarity.OUT):
-                lst = [] 
-                for g in G.formulas:
-                        lst.append(g)
+            case LFormula(l, And(A, B), Polarity.OUT):
+                a = LFormula(l, A, Polarity.OUT)
+                b = LFormula(l, B, Polarity.OUT)
 
-                a = LFormula(l,left, Polarity.OUT)
-                b = LFormula(l,right, Polarity.OUT)
-                if a not in lst and b not in lst:
-                    lst.append(a)
-                    lst.append(b)
-                seq = Sequent(G.relations,lst)
-                return [seq]
-    return []
+                if a in G.formulas or b in G.formulas:
+                    return None
 
-def rule_and_out(G : Sequent) -> list[Sequent]:
+                s1 = set(G.formulas); s1.add(a)
+                s2 = set(G.formulas); s2.add(b)
+
+                return [
+                    Sequent(G.relations, list(s1)),
+                    Sequent(G.relations, list(s2)),
+                ]
+    return None
+
+def rule_or_in(G: Sequent):
     for f in G.formulas:
         match f:
-            case LFormula(label = l, formula = And(left, right), polarity = Polarity.OUT):
-                lst1 = []
+            case LFormula(l, Or(left, right), Polarity.IN):
+                a = LFormula(l, left, Polarity.IN)
+                b = LFormula(l, right, Polarity.IN)
 
-                for g in G.formulas:
-                        lst1.append(g)
+                if a in G.formulas or b in G.formulas:
+                    return None
 
-                a = LFormula(l,left, Polarity.OUT)
-                if a not in lst1:
-                    lst1.append(a)
-                seq1 = Sequent(G.relations,lst1)
+                s1 = set(G.formulas)
+                s1.add(a)
 
-                lst2 = []
-                for g in G.formulas:
-                        lst2.append(g)
+                s2 = set(G.formulas)
+                s2.add(b)
 
-                b = LFormula(l,right, Polarity.OUT)
-                if b not in lst2:
-                    lst2.append(b)
-                seq2 = Sequent(G.relations,lst2)
+                return [
+                    Sequent(G.relations, list(s1)),
+                    Sequent(G.relations, list(s2))
+                ]
+    return None
 
-                return [seq1,seq2]
-    return []        
-
-def rule_or_in(G : Sequent) -> list[Sequent]:
+def rule_imp_in(G: Sequent):
     for f in G.formulas:
         match f:
-            case LFormula(label = l, formula = Or(left, right), polarity = Polarity.IN):
-                lst1 = []
+            case LFormula(l, Imp(A, B), Polarity.IN):
+                a = LFormula(l, A, Polarity.OUT)
+                b = LFormula(l, B, Polarity.IN)
 
-                for g in G.formulas:
-                        lst1.append(g)
+                if a in G.formulas or b in G.formulas:
+                    return None
 
-                a = LFormula(l,left, Polarity.IN)
-                if a not in lst1:
-                    lst1.append(a)
-                seq1 = Sequent(G.relations,lst1)
+                s1 = set(G.formulas)
+                s1.add(a)
 
-                lst2 = []
-                for g in G.formulas:
-                        lst2.append(g)
+                s2 = set(G.formulas)
+                s2.add(b)
 
-                b = LFormula(l,right, Polarity.IN)
-                if b not in lst2:
-                    lst2.append(b)
-                seq2 = Sequent(G.relations,lst2)
+                return [
+                    Sequent(G.relations, list(s1)),
+                    Sequent(G.relations, list(s2))
+                ]
+    return None  
 
-                return [seq1,seq2]
-    return []      
-
-def rule_imp_in(G : Sequent) -> list[Sequent]:
+def rule_imp_out(G: Sequent):
     for f in G.formulas:
         match f:
-            case LFormula(label = l, formula = Imp(left, right), polarity = Polarity.IN):
-                lst1 = []
+            case LFormula(x, Imp(A, B), Polarity.OUT):
 
-                for g in G.formulas:
-                        lst1.append(g)
+                for y in all_labels(G):
+                    if (
+                        Preorder(x, y) in G.relations and
+                        LFormula(y, A, Polarity.IN) in G.formulas and
+                        LFormula(y, B, Polarity.OUT) in G.formulas
+                    ):
+                        return None   
 
-                a = LFormula(l,left, Polarity.OUT)
-                if a not in lst1:
-                    lst1.append(a)
-                seq1 = Sequent(G.relations,lst1)
+                y = new_label(G)
 
-                lst2 = []
-                for g in G.formulas:
-                        lst2.append(g)
+                new_rels = set(G.relations)
+                new_rels.add(Preorder(x, y))
+                new_rels.add(Preorder(y, y))  
 
-                b = LFormula(l,right, Polarity.IN)
-                if b not in lst2:
-                    lst2.append(b)
-                seq2 = Sequent(G.relations,lst2)
+                new_forms = set(G.formulas)
+                new_forms.add(LFormula(y, A, Polarity.IN))
+                new_forms.add(LFormula(y, B, Polarity.OUT))
 
-                return [seq1,seq2]
-    return []    
-
-def rule_imp_out(G : Sequent) -> list[Sequent]:
-    for f in G.formulas:
-        match f:
-            case LFormula(label = l, formula = Imp(left,right), polarity = Polarity.OUT):
-                lst = [] 
-                for g in G.formulas:
-                        lst.append(g)
-
-                new_lab = new_label(G)
-                new_rel = Preorder(l,new_lab)
-
-                lst2 = [] 
-                for r in G.relations:
-                        lst2.append(r)
-                lst2.append(new_rel)
-                
-                a = LFormula(new_lab,left, Polarity.IN)
-                b = LFormula(new_lab,right, Polarity.OUT)
-                if a not in lst and b not in lst:
-                    lst.append(a)
-                    lst.append(b)
-                seq = Sequent(lst2,lst)
-                return [seq]
-    return []  
+                return [Sequent(list(new_rels), list(new_forms))]
+    return None
 
 RULES = [
     rule_id,
