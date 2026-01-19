@@ -148,3 +148,54 @@ def export_proof_to_latex_document(root) -> str:
 \end{document}
 """
 
+# test
+
+
+# labels
+x = Label("x")
+
+# formulas
+p = Prop("p")
+q = Prop("q")
+
+# sequents
+G0 = Sequent(
+    relations=[Preorder(x, x)],
+    formulas=[LFormula(x, Or(p, q), Polarity.IN)]
+)
+
+G1 = Sequent(
+    relations=[Preorder(x, x)],
+    formulas=[
+        LFormula(x, Or(p, q), Polarity.IN),
+        LFormula(x, p, Polarity.IN)
+    ]
+)
+
+G2 = Sequent(
+    relations=[Preorder(x, x)],
+    formulas=[
+        LFormula(x, Or(p, q), Polarity.IN),
+        LFormula(x, q, Polarity.IN)
+    ]
+)
+
+# proof tree
+root = ProofNode(
+    sequent=G0,
+    rule="or_in",
+    children=[
+        ProofNode(sequent=G1),
+        ProofNode(sequent=G2)
+    ]
+)
+
+# export to LaTeX
+latex = export_proof_to_latex_document(root)
+
+with open("proof.tex", "w") as f:
+    f.write(latex)
+
+print("LaTeX written to proof.tex")
+
+# pdflatex proof.tex
