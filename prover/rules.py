@@ -1,6 +1,7 @@
 from syntax import *
 from closure import *
 from prooftree import *
+from happy import *
 
 # each rule is a fuction of type Sequent -> list[Sequent] or None
 
@@ -179,8 +180,59 @@ def apply_one_rule_node(node: ProofNode, rules: list) -> bool:
             node.children = children
             return True
 
-    
     return False
+
+"""
+Try to apply one saturation rule to the sequent G.
+
+Notes:
+- A rule application is considered valid only if it produces
+    new information (i.e. changes the sequent), or closes the branch.
+- This function is responsible for rule scheduling and progress control.
+ """
+def try_apply_rule(G: Sequent, rules: list) -> list[Sequent] | None:
+
+    G = closure(G)
+
+    old_forms = set(G.formulas)
+    old_rels  = set(G.relations)
+
+    for f in G.formulas:
+        # we never apply rule to a happy formula
+        if is_happy_formula(G, f):
+            continue
+
+        for rule in rules:
+            result = rule(G)
+
+            # nothing applicable
+            if result is None:
+                continue
+
+            # close brach
+            if result == []:
+                try_apply_rule.__last_rule_name__ = rule.__name__
+                return []
+
+            # progress check：at least one branch changed
+            progressed = False
+            new_seqs = []
+
+            for seq in result:
+                seq = closure(seq)
+
+                if (
+                    set(seq.formulas) != old_forms or
+                    set(seq.relations) != old_rels
+                ):
+                    progressed = True
+                    new_seqs.append(seq)
+
+            if progressed:
+                try_apply_rule.__last_rule_name__ = rule.__name__
+                return new_seqs
+
+    return None
 
 def print_premises(premises: list[Sequent]):
     i = 1
