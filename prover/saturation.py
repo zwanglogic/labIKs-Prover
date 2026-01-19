@@ -52,32 +52,3 @@ def saturation_with_tree(G: Sequent) -> ProofNode:
 
     return root
 
-p = Prop("p")
-q = Prop("q")
-r = Prop("r")
-s = Prop("s")
-
-x = Label("x")
-
-F = And(
-    Imp(Or(p, q), r),          # (p ∨ q) → r
-    And(
-        Or(p, q),              # (p ∨ q)
-        And(
-            Imp(r, Bot()),     # r → ⊥
-            s                  
-        )
-    )
-)
-
-G = Sequent(
-    relations=[Preorder(x, x)],
-    formulas=[LFormula(x, F, Polarity.IN)]
-)
-
-tree = saturation_with_tree(G)
-latex = export_proof_to_latex_document(tree)
-
-with open("test.tex", "w") as f:
-    f.write(latex)
-print("Test was finished")
