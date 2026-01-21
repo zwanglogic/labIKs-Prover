@@ -1,5 +1,6 @@
 from syntax import *
 
+
 # Given a sequent, for each label appears in it, adding reflexivity relation
 def reflexivity(G : Sequent):
     lst = all_labels(G)
@@ -10,7 +11,8 @@ def reflexivity(G : Sequent):
             G.relations.append(rel)
             flag = True
     
-# transitive closure
+
+# Transitive closure
 def transitivity(G: Sequent):
     changed = False
     rel = G.relations.copy()
@@ -42,9 +44,8 @@ def monotonicity(G: Sequent):
 
     if changed:
         monotonicity(G)
+        
 
-
-# reflexive transitive monotonicity closure
 def closure(G: Sequent) -> Sequent:
     newG = Sequent(G.relations.copy(), G.formulas.copy())
 
@@ -56,4 +57,3 @@ def closure(G: Sequent) -> Sequent:
         monotonicity(newG)
 
     return newG
-

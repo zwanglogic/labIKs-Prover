@@ -1,6 +1,6 @@
 from dataclasses import dataclass
+from typing import FrozenSet
 
-# Formulas
 
 class Formula:
    pass
@@ -47,9 +47,6 @@ class Imp(Formula):
         return f"{self.left} -> {self.right}"
 
 
-# Labels
-
-
 @dataclass(frozen=True)
 class Label:
     name : str
@@ -57,15 +54,10 @@ class Label:
     def __str__(self):
         return f"{self.name}"
 
-# Polarity          
-
 
 class Polarity:
     IN = "in"
     OUT = "out"
-
-
-# Labelled formulas
 
 
 @dataclass(frozen=True)
@@ -77,9 +69,6 @@ class LFormula:
     def __str__(self):
         return f"{self.label} : {self.formula} {self.polarity}"
     
-
-
-# Preorder relation
 
 @dataclass(frozen=True)
 class Preorder:
@@ -93,13 +82,10 @@ class Preorder:
         return f"{self.left} <= {self.right}"
     
 
-# Sequent
-
-
 @dataclass(frozen=True)
 class Sequent:
-    relations : list[Preorder]
-    formulas : list[LFormula]
+    relations: FrozenSet[Preorder]
+    formulas: FrozenSet[LFormula]
 
     def to_string(self):
         s = "["
@@ -152,6 +138,7 @@ def all_labels(G : Sequent) -> list[Label]:
     
     return lst
 
+
 def new_label(G : Sequent) -> Label:
     lst = all_labels(G)
 
@@ -162,6 +149,7 @@ def new_label(G : Sequent) -> Label:
         if lab not in lst:
             return lab
         i += 1
+
 
 def print_step(G: Sequent, rule_name: str, premises: list[Sequent]):
     print("Goal:")

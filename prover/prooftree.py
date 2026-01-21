@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 from syntax import *
 from rules import *
-
 from dataclasses import dataclass, field
 from typing import List, Optional
+
 
 @dataclass
 class ProofNode:
@@ -14,6 +12,7 @@ class ProofNode:
 
     def is_leaf(self) -> bool:
         return len(self.children) == 0
+
 
 def print_proof_tree(node: ProofNode, prefix: str = "", is_last: bool = True, is_root: bool = True):
     # Root node: print sequent alone (no branch chars)
@@ -52,7 +51,7 @@ def print_proof_tree(node: ProofNode, prefix: str = "", is_last: bool = True, is
             print()
 
 
-# export to LaTeX
+# Export to LaTeX
 
 def formula_to_latex(F) -> str:
     match F:
@@ -95,16 +94,19 @@ def sequent_to_latex(G: Sequent) -> str:
 
 
 RULE_LATEX = {
-    "or_in": r"$\lor^\bullet$",
-    "or_out": r"$\lor^\circ$",
-    "and_in": r"$\land^\bullet$",
-    "and_out": r"$\land^\circ$",
-    "imp_in": r"$\to^\bullet$",
-    "imp_out": r"$\to^\circ$",
+    "rule_id":        r"\mathsf{id}",
+    "rule_bot_in":    r"\bot^\bullet",
+    "rule_and_in":    r"\land^\bullet",
+    "rule_and_out":   r"\land^\circ",
+    "rule_or_in":     r"\lor^\bullet",
+    "rule_or_out":    r"\lor^\circ",
+    "rule_imp_in":    r"\to^\bullet",
+    "rule_imp_out":   r"\to^\circ",
 }
 
+
 def rule_to_latex(rule: str) -> str:
-    return RULE_LATEX.get(rule, rule)
+    return RULE_LATEX.get(rule, r"\mathsf{" + rule.replace("_", r"\_") + "}")
 
 
 def proofnode_to_buss(node) -> str:
@@ -114,7 +116,9 @@ def proofnode_to_buss(node) -> str:
 
     parts = [proofnode_to_buss(ch) for ch in node.children]
 
-    parts.append(rf"\RightLabel{{{rule_to_latex(node.rule)}}}")
+    parts.append(
+    rf"\RightLabel{{$ {rule_to_latex(node.rule)} $}}"
+    )
 
     n = len(node.children)
     if n == 1:
@@ -134,62 +138,26 @@ def export_proof_to_latex_document(root) -> str:
     body = proofnode_to_buss(root)
     return r"""\documentclass{article}
 \usepackage{bussproofs}
-\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage[paperwidth=65cm, paperheight=10cm, margin=2cm]{geometry} 
+
 \begin{document}
+
+\def\ScoreOverhang{1pt}
+\def\LabelSpacing{3pt}
+
+\pagestyle{empty}
+
+\centering 
+\vspace*{\fill} 
 
 \begin{prooftree}
 """ + body + r"""
 \end{prooftree}
 
+\vspace*{\fill} 
+
 \end{document}
 """
-
-# test
-
-
-# labels
-x = Label("x")
-
-# formulas
-p = Prop("p")
-q = Prop("q")
-
-# sequents
-G0 = Sequent(
-    relations=[Preorder(x, x)],
-    formulas=[LFormula(x, Or(p, q), Polarity.IN)]
-)
-
-G1 = Sequent(
-    relations=[Preorder(x, x)],
-    formulas=[
-        LFormula(x, Or(p, q), Polarity.IN),
-        LFormula(x, p, Polarity.IN)
-    ]
-)
-
-G2 = Sequent(
-    relations=[Preorder(x, x)],
-    formulas=[
-        LFormula(x, Or(p, q), Polarity.IN),
-        LFormula(x, q, Polarity.IN)
-    ]
-)
-
-# proof tree
-root = ProofNode(
-    sequent=G0,
-    rule="or_in",
-    children=[
-        ProofNode(sequent=G1),
-        ProofNode(sequent=G2)
-    ]
-)
-
-# export to LaTeX
-latex = export_proof_to_latex_document(root)
-
-with open("proof.tex", "w") as f:
-    f.write(latex)
-
-print("LaTeX written to proof.tex")

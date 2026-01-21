@@ -4,6 +4,7 @@ from closure import *
 from rules import *
 from prooftree import *
 
+
 saturation_rules = [
     rule_and_in,
     rule_and_out,
@@ -12,71 +13,77 @@ saturation_rules = [
     rule_imp_in
 ]
 
-# dfs
-def saturation(G : Sequent) -> list[Sequent]:
-    stack = [closure(G)]
-    leaves = []
-
-    while stack:
-        current_seq = closure(stack.pop())
-        if is_almost_happy_sequent(current_seq):
-            print(f"{current_seq} is almost happy")
-            leaves.append(current_seq)
-            continue
-
-        outcome = apply_one_rule(current_seq, saturation_rules)
-
-        # not almost happy and no rule applicable
-        if outcome is None:
-            raise RuntimeError(
-                f"Saturation stuck (not almost happy, no rule applies):\n{current_seq}"
-            )
-
-        for child in outcome:
-            stack.append(closure(child)) # do closure again, just in case
-    
-    return leaves
-
-# saturation with proof tree visualization
+# Saturation with visualization
 def saturation_with_tree(G: Sequent) -> ProofNode:
     root = ProofNode(sequent=closure(G))
     stack = [root]
 
     while stack:
-        current = stack.pop()
-        current.sequent = closure(current.sequent)
+        node = stack.pop()
+        Gc = closure(node.sequent)
+        node.sequent = Gc
 
-        if is_almost_happy_sequent(current.sequent):
+        # Case 1: almost happy 
+        if is_almost_happy_sequent(Gc):
             continue
 
-        applied = apply_one_rule_node(current, saturation_rules)
+        # Case 2: try to make progress
+        result = try_apply_rule(Gc, saturation_rules)
 
-        if not applied:
+        if result is None:
             raise RuntimeError(
-                f"Saturation stuck (not almost happy, no rule applies):\n{current.sequent}"
+                f"Saturation stuck (not almost happy, no progress):\n{Gc}"
             )
 
-        stack.extend(current.children)
+        node.rule = getattr(try_apply_rule, "__last_rule_name__", None)
+
+        # Case 2a: branch closed
+        if result == []:
+            node.children = []
+            continue
+
+        # Case 2b: genuine expansion
+        children = []
+        for seq in result:
+            child = ProofNode(sequent=seq)
+            children.append(child)
+
+        node.children = children
+        stack.extend(children)
 
     return root
 
-# labels
-x = Label("x")
+# Saturation without visualization
+def saturate(G: Sequent) -> list[Sequent]:
+    initial = closure(G)
+    stack = [initial]
+    saturated: list[Sequent] = []
 
-# formulas
-p = Prop("p")
-q = Prop("q")
-r = Prop("r")
+    while stack:
+        Gc = closure(stack.pop())
 
-phi = Or(And(p, q), r)
+        # Case 1: almost happy 
+        if is_almost_happy_sequent(Gc):
+            if Gc not in saturated:
+                saturated.append(Gc)
+            continue
 
-# initial sequent
-G0 = Sequent(
-    relations=[Preorder(x, x)],
-    formulas=[LFormula(x, phi, Polarity.IN)]
-)
+        # Case 2: try to expand
+        result = try_apply_rule(Gc, saturation_rules)
 
+        if result is None:
+            raise RuntimeError(
+                f"Saturation stuck (not almost happy, no progress):\n{Gc}"
+            )
 
-root = saturation_with_tree(G0)
+        # Case 2a: axiom
+        if result == []:
+            if Gc not in saturated:
+                saturated.append(Gc)
+            continue
 
-print_proof_tree(root)
+        # Case 2b: genuine expansion
+        for seq in result:
+            stack.append(seq)
+
+    return saturated
