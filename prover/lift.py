@@ -5,7 +5,7 @@ from closure import *
 from saturation import *
 from layer import *
 
-# generate a fresh label given a set of labels
+# Generate a fresh label given a set of labels
 def fresh_label_from_used(used: set[Label]) -> Label:
     i = 0
     while True:
@@ -15,12 +15,12 @@ def fresh_label_from_used(used: set[Label]) -> Label:
             return lab
         i += 1
 
-# map a set of labels to a entirely new set of labels
+# Map a set of labels to a entirely new set of labels
 def layer_mapping(G : Sequent, layer : set[Label]) -> dict[Label, Label]:
     used = {lab for lab in all_labels(G)}
     mapping = {}
 
-    # the layer is a set, so we sort it for convenience
+    # The layer is a set, so we sort it for convenience
     ordered_layer = sorted(layer, key=lambda l: l.name)
 
     for old in ordered_layer:
@@ -28,7 +28,6 @@ def layer_mapping(G : Sequent, layer : set[Label]) -> dict[Label, Label]:
         mapping[old] = new
         used.add(new)
     return mapping
-
 
 
 def lift_base(G : Sequent, x : Label, layer: set[Label], mapping: dict[Label, Label]) -> Sequent:
@@ -40,19 +39,19 @@ def lift_base(G : Sequent, x : Label, layer: set[Label], mapping: dict[Label, La
     new_relations = []
     new_formulas = []
     
-    # condition 1
+    # Condition 1
     for l in mapping.values():
        new_relations.append(Preorder(l,l))
 
-    # condition 2
+    # Condition 2
     for w in labels:
         for old_y, new_y in mapping.items():
             if Preorder(w,old_y) in G.relations:
                 new_relations.append(Preorder(w, new_y))
     
-    # condition 3: TBC
+    # Condition 3: TBC
     
-    # condition 4
+    # Condition 4
     for f in G.formulas:
         if f.label in mapping and f.polarity == Polarity.IN:
             new_y = mapping[f.label]
