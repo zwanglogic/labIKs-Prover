@@ -3,7 +3,7 @@ from typing import FrozenSet
 
 
 class Formula:
-   pass
+    pass
 
 
 @dataclass(frozen=True)
@@ -48,9 +48,25 @@ class Imp(Formula):
 
 
 @dataclass(frozen=True)
+class Box(Formula):
+    inner: Formula
+
+    def __str__(self):
+        return f"Box({self.inner})"
+
+
+@dataclass(frozen=True)
+class Diamond(Formula):
+    inner: Formula
+
+    def __str__(self):
+        return f"Diamond({self.inner})"
+
+
+@dataclass(frozen=True)
 class Label:
-    name : str
-    
+    name: str
+
     def __str__(self):
         return f"{self.name}"
 
@@ -62,68 +78,74 @@ class Polarity:
 
 @dataclass(frozen=True)
 class LFormula:
-    label : Label
-    formula : Formula
-    polarity : Polarity
+    label: Label
+    formula: Formula
+    polarity: Polarity
 
     def __str__(self):
         return f"{self.label} : {self.formula} {self.polarity}"
-    
+
 
 @dataclass(frozen=True)
 class Preorder:
-    left : Label
-    right : Label
+    left: Label
+    right: Label
 
     def __str__(self):
         return f"{self.left} <= {self.right}"
-    
+
     def __repr__(self):
         return f"{self.left} <= {self.right}"
-    
+
+
+@dataclass(frozen=True)
+class Relation:
+    left: Label
+    right: Label
+
+    def __str__(self):
+        return f"{self.left} R {self.right}"
+
+    def __repr__(self):
+        return f"{self.left} R {self.right}"
+
 
 @dataclass(frozen=True)
 class Sequent:
     relations: FrozenSet[Preorder]
+    modal_relations: FrozenSet[Relation]
     formulas: FrozenSet[LFormula]
 
     def to_string(self):
-        s = "["
+        parts = []
 
-        if len(self.relations) > 0:
-            last = self.relations[-1]
-            for r in self.relations:
-                s += str(r)
-                if r != last:
-                    s += ", "
+        if self.relations:
+            parts.extend(str(r) for r in self.relations)
 
-            if len(self.formulas) > 0:
-                s += ", "
+        if self.modal_relations:
+            parts.extend(str(r) for r in self.modal_relations)
 
-        if len(self.formulas) > 0:
-            last = self.formulas[-1]
-            for f in self.formulas:
-                s += str(f)
-                if f != last:
-                    s += ", "
+        if self.formulas:
+            parts.extend(str(f) for f in self.formulas)
 
-        s += "]"
-        return s
-    
+        return "[" + ", ".join(parts) + "]"
+
     def __str__(self):
         return self.to_string()
-    
+
     def __repr__(self):
         return self.to_string()
-    
+
     def copy(self):
         return Sequent(
             self.relations.copy(),
-            self.formulas.copy()
+            self.formulas.copy(),
+            self.modal_relations.copy()
         )
-    
 
-def all_labels(G : Sequent) -> list[Label]:
+
+# Compute all labels from G
+def all_labels(G: Sequent) -> list[Label]:
     lst = []
 
     for relation in G.relations:
@@ -131,15 +153,16 @@ def all_labels(G : Sequent) -> list[Label]:
             lst.append(relation.left)
         if relation.right not in lst:
             lst.append(relation.right)
-    
+
     for formula in G.formulas:
         if formula.label not in lst:
             lst.append(formula.label)
-    
+
     return lst
 
 
-def new_label(G : Sequent) -> Label:
+# Generate one new label at a time
+def new_label(G: Sequent) -> Label:
     lst = all_labels(G)
 
     i = 0
@@ -149,6 +172,20 @@ def new_label(G : Sequent) -> Label:
         if lab not in lst:
             return lab
         i += 1
+
+
+# Generate n new labels at a time
+def fresh_labels(G: Sequent, n: int) -> list[Label]:
+    used = set(all_labels(G))
+    result = []
+    i = 0
+    while len(result) < n:
+        lab = Label(f"x{i}")
+        if lab not in used:
+            result.append(lab)
+            used.add(lab)
+        i += 1
+    return result
 
 
 def print_step(G: Sequent, rule_name: str, premises: list[Sequent]):
