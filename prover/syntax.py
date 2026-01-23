@@ -146,19 +146,20 @@ class Sequent:
 
 # Compute all labels from G
 def all_labels(G: Sequent) -> list[Label]:
-    lst = []
+    labels = set()  # using set for efficiency and avoiding redundancy
 
     for relation in G.relations:
-        if relation.left not in lst:
-            lst.append(relation.left)
-        if relation.right not in lst:
-            lst.append(relation.right)
+        labels.add(relation.left)
+        labels.add(relation.right)
 
     for formula in G.formulas:
-        if formula.label not in lst:
-            lst.append(formula.label)
+        labels.add(formula.label)
 
-    return lst
+    for r in G.modal_relations:
+        labels.add(r.left)
+        labels.add(r.right)
+
+    return list(labels)
 
 
 # Generate one new label at a time
