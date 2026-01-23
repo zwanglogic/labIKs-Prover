@@ -10,11 +10,19 @@ saturation_rules = [
     rule_and_out,
     rule_or_in,
     rule_or_out,
-    rule_imp_in
+    rule_imp_in,
+    rule_box_in,
+    rule_diamond_in,
+    rule_diamond_out
 ]
 
-# Saturation with visualization
+
 def saturation_with_tree(G: Sequent) -> ProofNode:
+    """
+    Definition 5.5 (Saturation)
+
+    Perform saturation on a sequent and record the entire process as a proof tree.
+    """
     root = ProofNode(sequent=closure(G))
     stack = [root]
 
@@ -23,7 +31,7 @@ def saturation_with_tree(G: Sequent) -> ProofNode:
         Gc = closure(node.sequent)
         node.sequent = Gc
 
-        # Case 1: almost happy 
+        # Case 1: almost happy
         if is_almost_happy_sequent(Gc):
             continue
 

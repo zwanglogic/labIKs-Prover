@@ -52,7 +52,6 @@ def print_proof_tree(node: ProofNode, prefix: str = "", is_last: bool = True, is
 
 
 # Export to LaTeX
-
 def formula_to_latex(F) -> str:
     match F:
         case Prop(name):
@@ -65,8 +64,12 @@ def formula_to_latex(F) -> str:
             return rf"({formula_to_latex(A)} \lor {formula_to_latex(B)})"
         case Imp(A, B):
             return rf"({formula_to_latex(A)} \to {formula_to_latex(B)})"
+        case Box(A):
+            return rf"\Box {formula_to_latex(A)}"
+        case Diamond(A):
+            return rf"\Diamond {formula_to_latex(A)}"
         case _:
-            return str(F)
+            raise NotImplementedError(f"Unknown formula: {F}")
 
 
 def lformula_to_latex(f: LFormula) -> str:
@@ -81,11 +84,18 @@ def preorder_to_latex(r: Preorder) -> str:
     return rf"{r.left} \le {r.right}"
 
 
+def modal_relation_to_latex(r: Relation) -> str:
+    return rf"{r.left} R {r.right}"
+
+
 def sequent_to_latex(G: Sequent) -> str:
     parts = []
 
     for r in G.relations:
         parts.append(preorder_to_latex(r))
+
+    for r in G.modal_relations:
+        parts.append(modal_relation_to_latex(r))
 
     for f in G.formulas:
         parts.append(lformula_to_latex(f))
@@ -102,6 +112,10 @@ RULE_LATEX = {
     "rule_or_out":    r"\lor^\circ",
     "rule_imp_in":    r"\to^\bullet",
     "rule_imp_out":   r"\to^\circ",
+    "rule_box_in":      r"\Box^\bullet",
+    "rule_box_out":     r"\Box^\circ",
+    "rule_diamond_in":  r"\Diamond^\bullet",
+    "rule_diamond_out": r"\Diamond^\circ",
 }
 
 
