@@ -1,82 +1,218 @@
 from syntax import *
 from happy import *
 
+import itertools
+from typing import Dict, Iterable, Set  # For bijection generator
 
-# Without modality, all_layers(G) = [{x} | x is label appearing in G}]
-def all_layers(G : Sequent):
-    return [{x} for x in all_labels(G)]
 
-def is_layered(G : Sequent):
+def symmetric_closure(G: Sequent) -> set[tuple[Label, Label]]:
+    """
+    Definition 5.1: Compute R_G union R_G^{-1}.
+    """
+    rel = set()
+    for r in G.modal_relations:
+        rel.add((r.left, r.right))
+        rel.add((r.right, r.left))
+    return rel
+
+
+def reflexive_transitive_closure(base: set[tuple[Label, Label]], labels: set[Label]) -> set[tuple[Label, Label]]:
+    """
+    Compute the reflexive and transitive closure of a binary relation.
+
+    Potential problem: O(n^3), very slow.
+    """
+    c = set(base)
+
+    # reflexivity
+    for x in labels:
+        c.add((x, x))
+
+    # transitivity
+    changed = True
+    while changed:
+        changed = False
+        current = list(c)
+        for (x, y) in current:
+            for (y2, z) in current:
+                if y == y2 and (x, z) not in c:
+                    c.add((x, z))
+                    changed = True
+
+    return c
+
+
+def compute_equiv_relation(G: Sequent) -> set[tuple[Label, Label]]:
+    """
+    Given two labels in G, compute the equivalence relation in definition 5.1.
+
+    x equiv y  iff  (x, y) in closure(R_G union R_G^{-1})^*
+
+    Idea: computing the reflexive transitive closure is pretty expensive,
+    so instead of recomputing it everywhere,
+    we now compute it once and pass it around to the functions that need it.
+    """
+    labels = set(all_labels(G))
+    base = symmetric_closure(G)
+    return reflexive_transitive_closure(base, labels)
+
+
+def are_equivalent_from_closure(c: set[tuple[Label, Label]], x: Label, y: Label) -> bool:
+    """
+    Given two labels in G, determine whether they are equivalent under the relation in definition 5.1.
+    """
+    return (x, y) in c
+
+
+def layer(G: Sequent, c: set[tuple[Label, Label]], x: Label) -> set[Label]:
+    """
+    Definition 5.1 (Layer)
+
+    Compute the equivalence class of a label 'x' under the relation 'c'.
+    """
+    equiv_class = set()
+    for y in all_labels(G):
+        if are_equivalent_from_closure(c, x, y):
+            if y not in equiv_class:
+                equiv_class.add(y)
+
+    return equiv_class
+
+
+def all_layers(G: Sequent, c: set[tuple[Label, Label]]) -> list[set[Label]]:
+    """
+    Compute all layers in G under relation 'c'.
+    """
+    layers = []
+    for x in all_labels(G):
+        l = layer(G, c, x)
+        if l not in layers:
+            layers.append(l)
+
+    return layers
+
+
+def is_layered(G: Sequent, c: set[tuple[Label, Label]]):
+    """
+    Definition 5.2 (Layered sequent)
+
+    Determine whether a sequent G is layered under relation 'c'.
+    """
     labels = all_labels(G)
 
-    # Condition 1 is vacuously true in IPL
-    # Condition 2 is simply the antisymmetric condition
-
+    # Condition 1
     for x in labels:
         for y in labels:
-            if x == y:
-                continue
-            if (
-                Preorder(x, y) in G.relations and
-                Preorder(y, x) in G.relations
-            ):
-                return False
-
+            if x != y:
+                if are_equivalent_from_closure(c, x, y):
+                    if Preorder(x, y) in G.relations or Preorder(y, x) in G.relations:
+                        return False
+    # Condition 2
+    for x in labels:
+        for y in labels:
+            for s in labels:
+                for t in labels:
+                    if x != s:
+                        if (
+                            are_equivalent_from_closure(c, x, y)
+                            and are_equivalent_from_closure(c, s, t)
+                            and Preorder(x, s) in G.relations
+                        ):
+                            if Preorder(t, y) in G.relations:
+                                return False
     return True
 
 
-# order_layer({x}, {y}) iff Preorder(x, y)
-
 def order_layer(G: Sequent, L1: set[Label], L2: set[Label]) -> bool:
-    assert len(L1) == 1 and len(L2) == 1
-    x = next(iter(L1))
-    y = next(iter(L2))
-    return Preorder(x, y) in G.relations
+    """
+    Determine whether L1 < L2.
+    """
+    if L1 == L2:
+        return False
+
+    for x in L1:
+        for y in L2:
+            if Preorder(x, y) in G.relations:
+                return True
+    return False
 
 
 def is_happy_layer(G: Sequent, L: set[Label]) -> bool:
-    x = next(iter(L))
-    Gc = closure(G)
-    for f in Gc.formulas:
-        if f.label == x and not is_happy_formula(Gc, f):
+    """
+    Definition 5.1
+
+    A layer L is happy if all labels in L are happy.
+    """
+    for x in L:
+        if not is_happy_label(G, x):
             return False
     return True
 
 
-def are_equivalent_layers(G: Sequent, L1: set[Label], L2: set[Label]) -> bool:
-    x = next(iter(L1))
-    y = next(iter(L2))
-    Gc = closure(G)
+def all_bijections(L1: Set[Label], L2: Set[Label]) -> Iterable[Dict[Label, Label]]:
+    """
+    Generate all bijections f : L1 -> L2.
+    """
+    if len(L1) != len(L2):
+        return  # no bijection exists
 
-    content_x = {(f.formula, f.polarity) for f in Gc.formulas if f.label == x}
-    content_y = {(f.formula, f.polarity) for f in Gc.formulas if f.label == y}
-    return content_x == content_y
+    L1_list = list(L1)
+    L2_list = list(L2)
+
+    for perm in itertools.permutations(L2_list):
+        # We don't need to compute all bijections.
+        yield dict(zip(L1_list, perm))
 
 
-def is_allowed_formula(G: Sequent, f: LFormula) -> bool:
+def are_equivalent_layers(G: Sequent, L1: set[Label], L2: set[Label], c: set[tuple[Label, Label]]) -> bool:
+    """
+    Definition 5.14 (Equivalent layers)
+    """
+    if len(L1) != len(L2):
+        return False
+
+    for f in all_bijections(L1, L2):
+        flag1 = True
+        flag2 = True
+        for x in L1:
+            for y in L1:
+                if not are_equivalent_from_closure(c, x, f[x]):
+                    flag1 = False
+                lhs = Relation(x, y) in G.modal_relations
+                rhs = Relation(f[x], f[y]) in G.modal_relations
+                if not (lhs == rhs):
+                    flag2 = False
+
+        if flag1 and flag2:
+            return True
+    return False
+
+
+def is_allowed_formula(G: Sequent, f: LFormula, c: set[tuple[Label, Label]]) -> bool:
+    """
+    Definition 5.15 (Allowed formula)
+    """
     assert f in G.formulas, f"{f} is not in {G}"
 
     match f:
         case LFormula(_, Imp(_, _), Polarity.OUT):
             pass
+        case LFormula(_, Box(_), Polarity.OUT):
+            pass
         case _:
             return False
 
-    Gc = closure(G)
+    x = f.label
+    L = layer(G, c, x)
 
-    if is_happy_formula(Gc, f):
-        return False
-
-    current = {f.label}
-    for Lp in all_layers(Gc):
-        if Lp == current:
+    for Lp in all_layers(G, c):
+        if not order_layer(G, Lp, L):
             continue
 
-        # strict lower: Lp < current  (more robust than relying on is_layered)
-        if order_layer(Gc, Lp, current) and not order_layer(Gc, current, Lp):
-            if not is_happy_layer(Gc, Lp):
-                return False
-            if are_equivalent_layers(Gc, Lp, current):
-                return False
+        if are_equivalent_layers(G, Lp, L, c):
+            return False
+
+        if not is_happy_layer(G, Lp):
+            return False
 
     return True
