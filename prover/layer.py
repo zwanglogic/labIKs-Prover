@@ -167,9 +167,9 @@ def all_bijections(L1: Set[Label], L2: Set[Label]) -> Iterable[Dict[Label, Label
         # We don't need to compute all bijections.
         yield dict(zip(L1_list, perm))
 
-def contain_same_formulas(G: Sequent, x: Label, y: Label) -> bool:
+def are_equivalent_labels(G: Sequent, x: Label, y: Label) -> bool:
     """
-    Determine whether the components (formula, polarity) under x, y are the same.
+    Definition 5.10 (Equivalent labels)
     """
     x_formulas = set()
     y_formulas = set()
@@ -196,7 +196,7 @@ def are_equivalent_layers(G: Sequent, L1: set[Label], L2: set[Label], c: set[tup
         flag2 = True
         for x in L1:
             for y in L1:
-                if not contain_same_formulas(G, x, f[x]):
+                if not are_equivalent_labels(G, x, f[x]):
                     flag1 = False
                 lhs = Relation(x, y) in G.modal_relations
                 rhs = Relation(f[x], f[y]) in G.modal_relations
