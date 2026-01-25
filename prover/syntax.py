@@ -189,6 +189,17 @@ def fresh_labels(G: Sequent, n: int) -> list[Label]:
     return result
 
 
+# Generate a new label from a list. NOT confused with new_label().
+def new_label_list(lst: list) -> Label:
+    i = 0
+    while True:
+        name = f"x{i}"
+        lab = Label(name)
+        if lab not in lst:
+            return lab
+        i += 1
+
+
 def print_step(G: Sequent, rule_name: str, premises: list[Sequent]):
     print("Goal:")
     print(" ", G)

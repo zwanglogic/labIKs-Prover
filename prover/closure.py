@@ -59,17 +59,6 @@ def monotonicity(G: Sequent) -> Sequent:
     return Sequent(G.relations, G.modal_relations, frozenset(forms))
 
 
-# Generate a new label from a list. NOT confused with new_label().
-def new_label_list(lst: list) -> Label:
-    i = 0
-    while True:
-        name = f"x{i}"
-        lab = Label(name)
-        if lab not in lst:
-            return lab
-        i += 1
-
-
 def forward_confluence(G: Sequent) -> Sequent:
     rel = set(G.relations)
     m_rel = set(G.modal_relations)
