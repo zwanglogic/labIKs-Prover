@@ -97,6 +97,8 @@ def is_layered(G: Sequent, c: set[tuple[Label, Label]]):
     Definition 5.2 (Layered sequent)
 
     Determine whether a sequent G is layered under relation 'c'.
+
+    Potential problem: the complexity is O(n^4) :(
     """
     labels = all_labels(G)
 
@@ -152,6 +154,8 @@ def is_happy_layer(G: Sequent, L: set[Label]) -> bool:
 def all_bijections(L1: Set[Label], L2: Set[Label]) -> Iterable[Dict[Label, Label]]:
     """
     Generate all bijections f : L1 -> L2.
+
+    Potential problem: the complexity is O(n!). Terrible.
     """
     if len(L1) != len(L2):
         return  # no bijection exists
@@ -162,6 +166,22 @@ def all_bijections(L1: Set[Label], L2: Set[Label]) -> Iterable[Dict[Label, Label
     for perm in itertools.permutations(L2_list):
         # We don't need to compute all bijections.
         yield dict(zip(L1_list, perm))
+
+def contain_same_formulas(G: Sequent, x: Label, y: Label) -> bool:
+    """
+    Determine whether the components (formula, polarity) under x, y are the same.
+    """
+    x_formulas = set()
+    y_formulas = set()
+    
+    for f in G.formulas:
+        if f.label == x:
+            x_formulas.add((f.formula, f.polarity)) 
+        elif f.label == y:
+            y_formulas.add((f.formula, f.polarity))
+            
+    return x_formulas == y_formulas
+
 
 
 def are_equivalent_layers(G: Sequent, L1: set[Label], L2: set[Label], c: set[tuple[Label, Label]]) -> bool:
@@ -176,7 +196,7 @@ def are_equivalent_layers(G: Sequent, L1: set[Label], L2: set[Label], c: set[tup
         flag2 = True
         for x in L1:
             for y in L1:
-                if not are_equivalent_from_closure(c, x, f[x]):
+                if not contain_same_formulas(G, x, f[x]):
                     flag1 = False
                 lhs = Relation(x, y) in G.modal_relations
                 rhs = Relation(f[x], f[y]) in G.modal_relations
