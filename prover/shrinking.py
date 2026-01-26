@@ -102,3 +102,72 @@ def is_shrunk(G: Sequent, S: set[tuple[Label, Label]]) -> bool:
         if is_redundant(G, x, S):
             return False
     return True
+
+
+def rule_shrk(G: Sequent, S: set[tuple[Label, Label]]) -> Sequent | None:
+    """
+    Apply one shrinking step to G if possible.
+    """
+    for y in all_labels(G):
+        for x in all_labels(G):
+            if x == y:
+                continue
+            if are_siblings(G, x, y) and (x, y) in S:
+                return uniform_substitution(G, old=y, new=x)
+
+    return None
+
+
+def shrinking(G: Sequent) -> Sequent:
+    """
+    Apply rule shrk multiple times until the leaf is shrunk.
+
+    Remark: G is shrunk <=> we cannot apply shrk on G.
+
+    So there is a cleaner way to implement this notion. But now, I choose to follow the definition strictly.
+    """
+    seq = G
+    S = compute_largest_simulation(seq)
+
+    while True:
+        if is_shrunk(seq, S):
+            return seq
+
+        S = compute_largest_simulation(seq)
+        nxt = rule_shrk(seq, S)
+
+        if nxt is None:
+            # In principal this is not possible.
+            raise RuntimeError(
+                "Sequent is not shrunk, but no applicable shrinking step exists."
+            )
+
+        seq = nxt
+
+
+def collect_leaves(node: ProofNode) -> list[Sequent]:
+    """
+    Colloct all leaves in the prood tree.
+    """
+    if not node.children:
+        return [node.sequent]
+
+    leaves = []
+    for child in node.children:
+        leaves.extend(collect_leaves(child))
+    return leaves
+
+
+def shrink_saturation(G: Sequent) -> list[Sequent]:
+    """
+    Compute the saturation of G, then shrink every leaf sequent.
+    """
+    sat_tree = saturation_with_tree(G)
+    leaves = collect_leaves(sat_tree)
+
+    result = []
+    for H in leaves:
+        shrunk = shrinking(H)
+        result.append(shrunk)
+
+    return result
