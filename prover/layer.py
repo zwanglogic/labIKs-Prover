@@ -177,7 +177,7 @@ def are_equivalent_labels(G: Sequent, x: Label, y: Label) -> bool:
     for f in G.formulas:
         if f.label == x:
             x_formulas.add((f.formula, f.polarity)) 
-        elif f.label == y:
+        if f.label == y:
             y_formulas.add((f.formula, f.polarity))
             
     return x_formulas == y_formulas
