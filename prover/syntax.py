@@ -142,7 +142,7 @@ class Sequent:
             self.formulas.copy(),
             self.modal_relations.copy()
         )
-
+    
 
 # Compute all labels from G
 def all_labels(G: Sequent) -> list[Label]:

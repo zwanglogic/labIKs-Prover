@@ -1,7 +1,7 @@
 from syntax import *
 from dataclasses import dataclass, field
 from typing import List, Optional
-
+from countermodel import *
 
 @dataclass
 class ProofNode:
@@ -181,4 +181,61 @@ def export_proof_to_latex_document(root) -> str:
 \vspace*{\fill} 
 
 \end{document}
+"""
+
+def lab(x: Label) -> str:
+        return str(x)
+
+
+def prop(p: Prop) -> str:
+        return str(p)
+
+
+def model_to_latex(M: BirelationalModel) -> str:
+    
+    worlds = ", ".join(sorted([lab(w) for w in M.worlds]))
+    le = ",\\; ".join(sorted([rf"{lab(r.left)} \le {lab(r.right)}" for r in M.preorders]))
+    rrel = ",\\; ".join(sorted([rf"{lab(r.left)} R {lab(r.right)}" for r in M.modal_relations]))
+
+    val_lines = []
+    for w in sorted(M.worlds, key=lambda z: z.name):
+        ps = sorted(M.valuation.get(w, set()), key=lambda p: p.p)
+        inside = ", ".join([prop(p) for p in ps])
+        val_lines.append(rf"V({lab(w)}) = \{{{inside}\}}")
+
+    val = r"\\ ".join(val_lines) if val_lines else r"\text{(empty)}"
+
+    return rf"""
+\[
+\mathcal{{M}} = \langle W,\le,R,V\rangle
+\]
+\[
+W = \{{{worlds}\}}
+\]
+\[
+\le \;=\; \{{ {le} }}
+\]
+\[
+R \;=\; \{{ {rrel} }}
+\]
+\[
+{val}
+\]
+""".strip()
+
+
+def export_model_to_latex_document(M: BirelationalModel, title: str = "Countermodel") -> str:
+    body = model_to_latex(M)
+    return rf"""\documentclass{{article}}
+\usepackage{{amsmath}}
+\usepackage{{amssymb}}
+\usepackage[margin=2cm]{{geometry}}
+\pagestyle{{empty}}
+\begin{{document}}
+
+\section*{{{title}}}
+
+{body}
+
+\end{{document}}
 """

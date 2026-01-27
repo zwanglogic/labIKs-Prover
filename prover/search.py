@@ -5,6 +5,7 @@ from layer import *
 from lift import *
 from saturation import *
 from shrinking import *
+from countermodel import *
 
 
 # If the sequent is initial
@@ -73,6 +74,13 @@ def proof_search_visual(F: Formula) -> bool:
         ]
 
         if not allowed:
+
+            # Export the countermodel
+            model = sequent_to_model(Gi)
+            tex = export_model_to_latex_document(model, title=f"Countermodel at step {step}")
+            with open(f"countermodel_step_{step}.tex", "w") as f:
+                f.write(tex)
+
             print("Not provable.")
             return False
 
@@ -112,10 +120,8 @@ F = Imp(Imp(Diamond(p), Box(q)), Box(Imp(p, q)))
 a = Prop("a")
 b = Prop("b")
 
-A = Imp(
-    Imp(Imp(a, b), Bot()),
-    Bot()
-)
 
-result = proof_search_visual(A)
+F = Imp(Imp(Imp(a, Box(b)), Bot()), Bot())
+
+result = proof_search_visual(F)
 print(result)
