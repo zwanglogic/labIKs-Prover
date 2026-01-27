@@ -13,6 +13,13 @@ class ProofNode:
         return len(self.children) == 0
 
 
+@dataclass
+class ShrinkSaturationResult:
+    saturation_tree: ProofNode
+    shrinking_trees: list[ProofNode]
+    shrunk_sequents: list[Sequent]
+
+
 def print_proof_tree(node: ProofNode, prefix: str = "", is_last: bool = True, is_root: bool = True):
     # Root node: print sequent alone (no branch chars)
     if is_root:
