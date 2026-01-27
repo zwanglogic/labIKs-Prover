@@ -60,38 +60,3 @@ def saturation_with_tree(G: Sequent) -> ProofNode:
         stack.extend(children)
 
     return root
-
-# Saturation without visualization
-def saturate(G: Sequent) -> list[Sequent]:
-    initial = closure(G)
-    stack = [initial]
-    saturated: list[Sequent] = []
-
-    while stack:
-        Gc = closure(stack.pop())
-
-        # Case 1: almost happy 
-        if is_almost_happy_sequent(Gc):
-            if Gc not in saturated:
-                saturated.append(Gc)
-            continue
-
-        # Case 2: try to expand
-        result = try_apply_rule(Gc, saturation_rules)
-
-        if result is None:
-            raise RuntimeError(
-                f"Saturation stuck (not almost happy, no progress):\n{Gc}"
-            )
-
-        # Case 2a: axiom
-        if result == []:
-            if Gc not in saturated:
-                saturated.append(Gc)
-            continue
-
-        # Case 2b: genuine expansion
-        for seq in result:
-            stack.append(seq)
-
-    return saturated

@@ -164,7 +164,7 @@ def rule_diamond_out(G: Sequent) -> list[Sequent] | None:
                 for f in G.formulas:
                     match f:
                         case LFormula(label=l, formula=Diamond(A), polarity=Polarity.OUT) if l == x:
-                            a = LFormula(y, A, Polarity.IN)
+                            a = LFormula(y, A, Polarity.OUT)
 
                             if a in G.formulas:
                                 continue
@@ -173,7 +173,6 @@ def rule_diamond_out(G: Sequent) -> list[Sequent] | None:
                             s.add(a)
                             return [Sequent(G.relations, G.modal_relations, frozenset(s))]
     return None
-
 
 def rule_diamond_in(G: Sequent) -> list[Sequent] | None:
     y = new_label(G)

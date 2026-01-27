@@ -167,6 +167,7 @@ def all_bijections(L1: Set[Label], L2: Set[Label]) -> Iterable[Dict[Label, Label
         # We don't need to compute all bijections.
         yield dict(zip(L1_list, perm))
 
+
 def are_equivalent_labels(G: Sequent, x: Label, y: Label) -> bool:
     """
     Definition 5.10 (Equivalent labels)
@@ -181,7 +182,6 @@ def are_equivalent_labels(G: Sequent, x: Label, y: Label) -> bool:
             y_formulas.add((f.formula, f.polarity))
             
     return x_formulas == y_formulas
-
 
 
 def are_equivalent_layers(G: Sequent, L1: set[Label], L2: set[Label], c: set[tuple[Label, Label]]) -> bool:
@@ -214,6 +214,7 @@ def is_allowed_formula(G: Sequent, f: LFormula, c: set[tuple[Label, Label]]) -> 
     """
     assert f in G.formulas, f"{f} is not in {G}"
 
+
     match f:
         case LFormula(_, Imp(_, _), Polarity.OUT):
             pass
@@ -221,6 +222,9 @@ def is_allowed_formula(G: Sequent, f: LFormula, c: set[tuple[Label, Label]]) -> 
             pass
         case _:
             return False
+    
+    if is_happy_formula(G, f):
+        return False
 
     x = f.label
     L = layer(G, c, x)

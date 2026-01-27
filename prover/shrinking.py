@@ -148,7 +148,7 @@ def shrinking(G: Sequent) -> Sequent:
 
 def collect_leaves(node: ProofNode) -> list[Sequent]:
     """
-    Colloct all leaves in the prood tree.
+    Colloct all leaves in the proof tree.
     """
     if not node.children:
         return [node.sequent]
@@ -200,19 +200,28 @@ def shrinking_with_tree(G: Sequent) -> ProofNode:
         cur = nxt
 
 
-def shrink_saturation_with_trees(G: Sequent):
+def shrink_saturation_with_trees(G: Sequent) -> list[Sequent]:
     """
     Run saturation once, export its proof tree,
     then for each leaf, run shrinking and export the shrinking tree.
     """
     sat_tree = saturation_with_tree(G)
     latex = export_proof_to_latex_document(sat_tree)
+    
     with open("saturation.tex", "w") as f:
         f.write(latex)
+
     leaves = collect_leaves(sat_tree)
+    result = []
 
     for i, leaf in enumerate(leaves):
         shr_tree = shrinking_with_tree(leaf)
         latex = export_proof_to_latex_document(shr_tree)
+
         with open(f"shrinking_leaf_{i}.tex", "w") as f:
             f.write(latex)
+
+        shrunk_sequent = collect_leaves(shr_tree)[0]
+        result.append(shrunk_sequent)
+
+    return result
