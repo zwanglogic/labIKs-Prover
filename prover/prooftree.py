@@ -1,5 +1,4 @@
 from syntax import *
-from rules import *
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -116,6 +115,7 @@ RULE_LATEX = {
     "rule_box_out":     r"\Box^\circ",
     "rule_diamond_in":  r"\Diamond^\bullet",
     "rule_diamond_out": r"\Diamond^\circ",
+    "rule_shrk": r"\mathsf{shrk}"
 }
 
 

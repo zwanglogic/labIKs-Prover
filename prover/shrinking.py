@@ -1,4 +1,5 @@
 from lift import *
+from prooftree import *
 
 
 def compute_largest_simulation(G: Sequent) -> set[tuple[Label, Label]]:
@@ -171,3 +172,47 @@ def shrink_saturation(G: Sequent) -> list[Sequent]:
         result.append(shrunk)
 
     return result
+
+
+def shrinking_with_tree(G: Sequent) -> ProofNode:
+    """
+    Build a unary proof tree for repeated applications of rule_shrk,
+    until no more shrinking step is possible.
+    """
+    cur = closure(G)
+    root = ProofNode(sequent=cur)
+    node = root
+
+    while True:
+        S = compute_largest_simulation(cur)
+        nxt = rule_shrk(cur, S)
+
+        if nxt is None:
+            return root
+
+        nxt = closure(nxt)
+
+        child = ProofNode(sequent=nxt)
+        node.rule = "rule_shrk"
+        node.children = [child]
+
+        node = child
+        cur = nxt
+
+
+def shrink_saturation_with_trees(G: Sequent):
+    """
+    Run saturation once, export its proof tree,
+    then for each leaf, run shrinking and export the shrinking tree.
+    """
+    sat_tree = saturation_with_tree(G)
+    latex = export_proof_to_latex_document(sat_tree)
+    with open("saturation.tex", "w") as f:
+        f.write(latex)
+    leaves = collect_leaves(sat_tree)
+
+    for i, leaf in enumerate(leaves):
+        shr_tree = shrinking_with_tree(leaf)
+        latex = export_proof_to_latex_document(shr_tree)
+        with open(f"shrinking_leaf_{i}.tex", "w") as f:
+            f.write(latex)
