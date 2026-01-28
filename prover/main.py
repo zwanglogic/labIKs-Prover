@@ -1,20 +1,42 @@
+import argparse
+
 from syntax import *
-from search import *
+from search import proof_search_visual
 
 def main():
-    # Example B.2
-    p = Prop("p")
-    q = Prop("q")
-    F = Imp(Imp(Diamond(p), Box(q)), Box(Imp(p, q)))
+    parser = argparse.ArgumentParser(
+        description="LabIKs Prover"
+    )
 
-    a = Prop("a")
-    b = Prop("b")
+    parser.add_argument(
+        "--formula",
+        type=str,
+        required=True,
+    )
 
+    args = parser.parse_args()
 
-    F = Imp(Imp(Imp(a, Box(b)), Bot()), Bot())
+    env = {
+        "Prop": Prop,
+        "And": And,
+        "Or": Or,
+        "Imp": Imp,
+        "Box": Box,
+        "Diamond": Diamond,
+        "Bot": Bot,
+    }
 
-    result = proof_search_visual(F)
-    print(result)
+    try:
+        F = eval(args.formula, {}, env)
+    except Exception as e:
+        print("Error parsing formula.")
+        print(e)
+        return
+
+    print("---------- LabIKs Prover ----------\n")
+    print(f"Input formula: {F}\n")
+
+    proof_search_visual(F)
 
 if __name__ == "__main__":
     main()

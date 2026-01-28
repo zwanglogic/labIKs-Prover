@@ -45,7 +45,7 @@ def proof_search_visual(F: Formula) -> bool:
 
     # Initial shrink-saturation
     result = shrink_saturation_with_trees(G0)
-    print(f"--- Step {step}: Initial shrink-saturation ---")
+    print(f"Step {step}: Initial shrink-saturation\n")
 
     # Export initial saturation tree
     with open(f"step_{step}_saturation.tex", "w") as f:
@@ -60,7 +60,7 @@ def proof_search_visual(F: Formula) -> bool:
 
     while True:
         if all(is_axiomatic(G) for G in S):
-            print("Provable.")
+            print("Provable :D")
             return True
 
         # Pick a non-axiomatic leaf
@@ -81,7 +81,7 @@ def proof_search_visual(F: Formula) -> bool:
             with open(f"countermodel.tex", "w") as f:
                 f.write(tex)
 
-            print("Not provable.")
+            print("Not provable :( \nA countermodel has been generated.")
             return False
 
         # Lifting
@@ -94,11 +94,11 @@ def proof_search_visual(F: Formula) -> bool:
         lift_tree = lifting_with_tree(Gi, target_f, current_layer)
         with open(f"step_{step}_lift.tex", "w") as f:
             f.write(export_proof_to_latex_document(lift_tree))
-        print(f"\n--- Step {step}: Lifting ---")
+        print(f"Step {step}: Lifting\n")
 
         # Shrink-saturation
         lift_result = shrink_saturation_with_trees(G_lifted)
-        print("--- Shrink-Saturation After Lifting ---")
+        print("Shrink-Saturation After Lifting\n")
 
         # Export saturation tree
         with open(f"step_{step}_saturation.tex", "w") as f:
