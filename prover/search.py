@@ -78,7 +78,7 @@ def proof_search_visual(F: Formula) -> bool:
             # Export the countermodel
             model = sequent_to_model(Gi)
             tex = export_model_to_latex_document(model, title=f"Countermodel at step {step}")
-            with open(f"countermodel_step_{step}.tex", "w") as f:
+            with open(f"countermodel.tex", "w") as f:
                 f.write(tex)
 
             print("Not provable.")
@@ -90,6 +90,10 @@ def proof_search_visual(F: Formula) -> bool:
         current_layer = layer(Gi, E, target_f.label)
 
         G_lifted = lifting(Gi, target_f, current_layer)
+
+        lift_tree = lifting_with_tree(Gi, target_f, current_layer)
+        with open(f"step_{step}_lift.tex", "w") as f:
+            f.write(export_proof_to_latex_document(lift_tree))
         print(f"\n--- Step {step}: Lifting ---")
 
         # Shrink-saturation
@@ -111,17 +115,3 @@ def proof_search_visual(F: Formula) -> bool:
             if seq not in S:
                 S.append(seq)
 
-
-# Example B.2
-p = Prop("p")
-q = Prop("q")
-F = Imp(Imp(Diamond(p), Box(q)), Box(Imp(p, q)))
-
-a = Prop("a")
-b = Prop("b")
-
-
-F = Imp(Imp(Imp(a, Box(b)), Bot()), Bot())
-
-result = proof_search_visual(F)
-print(result)

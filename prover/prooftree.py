@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from countermodel import *
 
+
 @dataclass
 class ProofNode:
     sequent: Sequent
@@ -52,7 +53,8 @@ def print_proof_tree(node: ProofNode, prefix: str = "", is_last: bool = True, is
     # Print children recursively
     for i, child in enumerate(node.children):
         child_is_last = (i == len(node.children) - 1)
-        print_proof_tree(child, prefix=new_prefix, is_last=child_is_last, is_root=False)
+        print_proof_tree(child, prefix=new_prefix,
+                         is_last=child_is_last, is_root=False)
         if i != len(node.children) - 1:
             print()
 
@@ -122,7 +124,8 @@ RULE_LATEX = {
     "rule_box_out":     r"\Box^\circ",
     "rule_diamond_in":  r"\Diamond^\bullet",
     "rule_diamond_out": r"\Diamond^\circ",
-    "rule_shrk": r"\mathsf{shrk}"
+    "rule_shrk": r"\mathsf{shrk}",
+    "rule_lift": r"\mathsf{lift}"
 }
 
 
@@ -138,7 +141,7 @@ def proofnode_to_buss(node) -> str:
     parts = [proofnode_to_buss(ch) for ch in node.children]
 
     parts.append(
-    rf"\RightLabel{{$ {rule_to_latex(node.rule)} $}}"
+        rf"\RightLabel{{$ {rule_to_latex(node.rule)} $}}"
     )
 
     n = len(node.children)
@@ -183,59 +186,108 @@ def export_proof_to_latex_document(root) -> str:
 \end{document}
 """
 
-def lab(x: Label) -> str:
-        return str(x)
+
+def lab(w: Label) -> str:
+    name = w.name
+    if len(name) >= 2 and name[0].isalpha() and name[1:].isdigit():
+        return rf"{name[0]}_{{{name[1:]}}}"
+    return name
 
 
 def prop(p: Prop) -> str:
-        return str(p)
+    return p.p
+
+
+def latex_set(elems: list[str]) -> str:
+    if not elems:
+        return r"\emptyset"
+    return r"\left\{ " + r",\; ".join(elems) + r" \right\}"
 
 
 def model_to_latex(M: BirelationalModel) -> str:
-    
-    worlds = ", ".join(sorted([lab(w) for w in M.worlds]))
-    le = ",\\; ".join(sorted([rf"{lab(r.left)} \le {lab(r.right)}" for r in M.preorders]))
-    rrel = ",\\; ".join(sorted([rf"{lab(r.left)} R {lab(r.right)}" for r in M.modal_relations]))
+    lines = []
 
-    val_lines = []
+    lines.append(r"$\mathcal{M} = \langle W,\le,R,V\rangle$")
+
+    lines.append(r"\medskip")
+    lines.append(
+        r"$W = \{" +
+        ", ".join(lab(w) for w in sorted(M.worlds, key=lambda z: z.name)) +
+        r"\}$"
+    )
+
+    lines.append(r"\medskip")
+    lines.append(
+        r"$\le = \{" +
+        ", ".join(
+            rf"{lab(r.left)} \le {lab(r.right)}"
+            for r in sorted(M.preorders, key=lambda r: (r.left.name, r.right.name))
+        ) +
+        r"\}$"
+    )
+
+    lines.append(r"\medskip")
+    lines.append(
+        r"$R = \{" +
+        ", ".join(
+            rf"{lab(r.left)} R {lab(r.right)}"
+            for r in sorted(M.modal_relations, key=lambda r: (r.left.name, r.right.name))
+        ) +
+        r"\}$"
+    )
+
+    lines.append(r"\medskip")
     for w in sorted(M.worlds, key=lambda z: z.name):
         ps = sorted(M.valuation.get(w, set()), key=lambda p: p.p)
-        inside = ", ".join([prop(p) for p in ps])
-        val_lines.append(rf"V({lab(w)}) = \{{{inside}\}}")
+        if ps:
+            inside = ", ".join(prop(p) for p in ps)
+            lines.append(rf"$V({lab(w)}) = \{{{inside}\}}$")
+        else:
+            lines.append(rf"$V({lab(w)}) = \emptyset$")
 
-    val = r"\\ ".join(val_lines) if val_lines else r"\text{(empty)}"
+    return "\n\n".join(lines)
+
+
+def export_model_to_latex_document(
+    M: BirelationalModel,
+    title: str = "Countermodel"
+) -> str:
+    body = model_to_latex(M)
 
     return rf"""
-\[
-\mathcal{{M}} = \langle W,\le,R,V\rangle
-\]
-\[
-W = \{{{worlds}\}}
-\]
-\[
-\le \;=\; \{{ {le} }}
-\]
-\[
-R \;=\; \{{ {rrel} }}
-\]
-\[
-{val}
-\]
-""".strip()
+\documentclass{{article}}
 
+\usepackage[english]{{babel}}
+\usepackage{{cite}}
+\usepackage[most]{{tcolorbox}}
+\usepackage{{amsthm}}
+\usepackage{{libertinus}}
 
-def export_model_to_latex_document(M: BirelationalModel, title: str = "Countermodel") -> str:
-    body = model_to_latex(M)
-    return rf"""\documentclass{{article}}
-\usepackage{{amsmath}}
-\usepackage{{amssymb}}
-\usepackage[margin=2cm]{{geometry}}
+\tcolorboxenvironment{{proof}}{{
+  colback=gray!10,
+  colframe=white,
+  boxrule=0pt,
+  arc=4pt,
+  left=3pt, right=3pt, top=4pt, bottom=4pt,
+  enhanced, breakable
+}}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=4cm,right=4cm,marginparwidth=1.75cm]{{geometry}}
+\usepackage{{amsmath,amssymb,amsfonts}}
+\usepackage{{graphicx}}
+\usepackage[colorlinks=true, allcolors=blue]{{hyperref}}
+\usepackage{{float}}
+\usepackage{{mathtools}}
+
 \pagestyle{{empty}}
+
 \begin{{document}}
 
-\section*{{{title}}}
+\section*{{Countermodel}}
 
+\begin{{proof}}
 {body}
+\end{{proof}}
 
 \end{{document}}
-"""
+""".strip()

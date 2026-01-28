@@ -10,6 +10,16 @@ class BirelationalModel:
 
 
 def sequent_to_model(G: Sequent) -> BirelationalModel:
+    """
+    Extract a birelational countermodel from a sequent.
+
+    Definition 2.2. (W, <=, R, V)
+
+    - W consists of all labels occurring in G.
+    - <= is given directly by the preorder relations in G.
+    - R is given directly by the modal relations in G.
+    - V(x) = { p | x : p is marked with polarity IN in G }.
+    """
     worlds = set(all_labels(G))
     preorders = G.relations
     modal_relations = G.modal_relations

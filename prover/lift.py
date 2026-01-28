@@ -75,7 +75,7 @@ def lift_base(G: Sequent, x: Label, layer: set[Label], mapping: dict[Label, Labe
 
 def lifting(G: Sequent, f: LFormula, layer: set[Label]) -> Sequent:
     """
-    Compute the lifting of G↑ x:F ◦, where x:F ◦ in is an unhappy formula of form 
+    Compute the lifting of x:F out in G, where x:F out in is an unhappy formula of form 
 
     F = Imp(A, B) or F = Box(B)
     """
@@ -117,3 +117,16 @@ def lifting(G: Sequent, f: LFormula, layer: set[Label]) -> Sequent:
 
     raise NotImplementedError(
         "lifting only implemented for Imp_out and Box_out")
+
+
+def lifting_with_tree(Gi: Sequent, f: LFormula, layer: set[Label]) -> ProofNode:
+    """
+    Visualize one lifting step as a unary proof tree.
+    """
+    G_lifted = lifting(Gi, f, layer)
+
+    return ProofNode(
+        sequent=Gi,
+        rule="rule_lift",
+        children=[ProofNode(sequent=G_lifted)]
+    )
