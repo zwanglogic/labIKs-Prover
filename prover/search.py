@@ -81,7 +81,7 @@ def proof_search_visual(F: Formula) -> bool:
             with open(f"countermodel.tex", "w") as f:
                 f.write(tex)
 
-            print("Not provable :( \nA countermodel has been generated.")
+            print("Not provable.\nA countermodel has been generated.")
             return False
 
         # Lifting

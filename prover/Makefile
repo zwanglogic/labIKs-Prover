@@ -1,29 +1,32 @@
 SCRIPT = main.py
+
 PYTHON = python3
 
 LATEX = pdflatex
 LATEX_FLAGS = -interaction=nonstopmode -halt-on-error
 
+TEX_SOURCES := $(wildcard *.tex)
+PDF_OBJECTS := $(TEX_SOURCES:.tex=.pdf)
 
-.PHONY: run clean wipe help
+.PHONY: all pdf clean help
+
+all: pdf
 
 
-run:
-	@echo "--- Running IK Prover ---"
-	$(PYTHON) $(SCRIPT)
+pdf: $(PDF_OBJECTS)
+	@echo "--- All PDFs generated successfully! ---"
+
+
+%.pdf: %.tex
+	@echo "--- Compiling $< ---"
+	$(LATEX) $(LATEX_FLAGS) $<
 
 
 clean:
 	@echo "--- Cleaning auxiliary files ---"
-	rm -f *.aux *.log *.out *.toc
-
-
-wipe:
-	@echo "--- WIPING all generated files ---"
-	rm -f *.aux *.log *.out *.toc *.tex *.pdf
+	rm -f *.aux *.log *.tex *.pdf *.out
 
 
 help:
-	@echo "make run   - run prover"
-	@echo "make clean - remove auxiliary LaTeX files"
-	@echo "make wipe  - remove ALL generated files (Be careful!)"
+	@echo "make pdf    - compile all .tex to .pdf"
+	@echo "make clean  - remove LaTeX auxiliary files(Be careful!)"
