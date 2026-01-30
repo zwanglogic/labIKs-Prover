@@ -1,5 +1,5 @@
-# labIks Prover
-This is a prover for the fully labelled sequent calculus **labIKs**. 
+# labIK<sup>s</sup> Prover
+This is a prover for the fully labelled sequent calculus **labIK<sup>s</sup>**. 
 
 It supports:
 * step-by-step proof search, 
