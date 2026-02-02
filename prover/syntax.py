@@ -26,7 +26,7 @@ class And(Formula):
     right: Formula
 
     def __str__(self):
-        return f"{self.left} and {self.right}"
+        return f"({self.left} and {self.right})"
 
 
 @dataclass(frozen=True)
@@ -35,7 +35,7 @@ class Or(Formula):
     right: Formula
 
     def __str__(self):
-        return f"{self.left} or {self.right}"
+        return f"({self.left} or {self.right})"
 
 
 @dataclass(frozen=True)
@@ -44,7 +44,7 @@ class Imp(Formula):
     right: Formula
 
     def __str__(self):
-        return f"{self.left} -> {self.right}"
+        return f"({self.left} -> {self.right})"
 
 
 @dataclass(frozen=True)
@@ -52,7 +52,7 @@ class Box(Formula):
     inner: Formula
 
     def __str__(self):
-        return f"Box({self.inner})"
+        return f"(Box({self.inner}))"
 
 
 @dataclass(frozen=True)
@@ -60,7 +60,7 @@ class Diamond(Formula):
     inner: Formula
 
     def __str__(self):
-        return f"Diamond({self.inner})"
+        return f"(Diamond({self.inner}))"
 
 
 @dataclass(frozen=True)
@@ -128,7 +128,7 @@ class Sequent:
         if self.formulas:
             parts.extend(str(f) for f in self.formulas)
 
-        return "[" + ", ".join(parts) + "]"
+        return "\n"+"[" + ", ".join(parts) + "]"+"\n"
 
     def __str__(self):
         return self.to_string()

@@ -33,7 +33,7 @@ def main():
         print(e)
         return
 
-    print("---------- labIKs Prover ----------\n")
+    print("-------------------------- labIKs Prover --------------------------\n")
     print(f"Input formula: {F}\n")
 
     proof_search_visual(F)
