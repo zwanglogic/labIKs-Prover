@@ -38,11 +38,6 @@ Input formula: (Box(bot))
 
 ---------------- Step 0: Initial shrink-saturation ----------------
 
-Candidate sequents are
-[
-[r <= r, r : (Box(bot)) out]
-]
-
 Current sequent is 
 
 [r <= r, r : (Box(bot)) out]
@@ -52,14 +47,9 @@ Current sequent is
 
 ---------------- Shrink-Saturation After Lifting ----------------
 
-Candidate sequents are
-[
-[r <= r, x0 <= x0, x1 <= x1, r <= x0, x0 R x1, r : (Box(bot)) out, x1 : bot out]
-]
-
 Current sequent is 
 
-[r <= r, x0 <= x0, x1 <= x1, r <= x0, x0 R x1, r : (Box(bot)) out, x1 : bot out]
+[x1 <= x1, r <= r, r <= x0, x0 <= x0, x0 R x1, x1 : bot out, r : (Box(bot)) out]
 
 
 Not provable.
@@ -91,11 +81,6 @@ The prover produces the following output:
 Input formula: (p -> p)
 
 ---------------- Step 0: Initial shrink-saturation ----------------
-
-Candidate sequents are
-[
-[r <= r, r : (p -> p) out]
-]
 
 Current sequent is 
 

@@ -65,8 +65,6 @@ def proof_search_visual(F: Formula) -> bool:
 
         # Pick a non-axiomatic leaf
         Gi = next(G for G in S if not is_axiomatic(G))
-
-        print(f"Candidate sequents are\n{S}\n")
         print(f"Current sequent is \n{Gi}\n")
 
         E = compute_equiv_relation(Gi)
