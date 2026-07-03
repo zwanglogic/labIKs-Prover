@@ -139,8 +139,8 @@ class Sequent:
     def copy(self):
         return Sequent(
             self.relations.copy(),
+            self.modal_relations.copy(),
             self.formulas.copy(),
-            self.modal_relations.copy()
         )
     
 
