@@ -26,21 +26,21 @@ Depending on your system configuration, the Python interpreter may be invoked us
 
 ## Quick Start Examples
 ### Example 1 (not provable)
-To prove $\Box\bot$:
+To prove $\Box(p\lor\neg p)$:
 ```
-python3 main.py --formula "Box(Bot())"
+python3 main.py --formula "Box(Or(Prop('p'), Imp(Prop('p'), Bot())))"
 ```
 The prover produces the following output:
 ```
 -------------------------- labIKs Prover --------------------------
 
-Input formula: (Box(bot))
+Input formula: (Box((p or (p -> bot))))
 
 ---------------- Step 0: Initial shrink-saturation ----------------
 
 Current sequent is 
 
-[r <= r, r : (Box(bot)) out]
+[r <= r, r : (Box((p or (p -> bot)))) out]
 
 
 ------------------------ Step 1: Lifting ------------------------
@@ -49,7 +49,16 @@ Current sequent is
 
 Current sequent is 
 
-[x1 <= x1, r <= r, r <= x0, x0 <= x0, x0 R x1, x1 : bot out, r : (Box(bot)) out]
+[r <= x0, r <= r, x0 <= x0, x1 <= x1, x0 R x1, r : (Box((p or (p -> bot)))) out, x1 : (p -> bot) out, x1 : (p or (p -> bot)) out, x1 : p out]
+
+
+------------------------ Step 2: Lifting ------------------------
+
+---------------- Shrink-Saturation After Lifting ----------------
+
+Current sequent is 
+
+[x2 <= x2, x0 <= x0, x0 <= x2, r <= x0, x3 <= x3, r <= r, r <= x2, x1 <= x3, x1 <= x1, x2 R x3, x0 R x1, x1 : (p or (p -> bot)) out, x1 : p out, x3 : p in, x1 : (p -> bot) out, x3 : bot out, r : (Box((p or (p -> bot)))) out]
 
 
 Not provable.
@@ -57,7 +66,7 @@ A countermodel has been generated.
 ```
 The sequent printed immediately before the “Not provable” message is the one that defines the countermodel.
 ```
-[x1 <= x1, r <= r, r <= x0, x0 <= x0, x0 R x1, x1 : bot out, r : (Box(bot)) out]
+[x2 <= x2, x0 <= x0, x0 <= x2, r <= x0, x3 <= x3, r <= r, r <= x2, x1 <= x3, x1 <= x1, x2 R x3, x0 R x1, x1 : (p or (p -> bot)) out, x1 : p out, x3 : p in, x1 : (p -> bot) out, x3 : bot out, r : (Box((p or (p -> bot)))) out]
 ```
 
 During the proof search, several .tex files are generated, each corresponding to a specific stage of the algorithm:
