@@ -18,10 +18,6 @@ def find_layer_bijection(G: Sequent, L1: set[Label], L2: set[Label]) -> dict[Lab
     return None
 
 
-def layer_formulas(G: Sequent, L: set[Label]) -> list[LFormula]:
-    return [formula for formula in G.formulas if formula.label in L]
-
-
 def repair_for_countermodel(G: Sequent) -> Sequent:
     seq = closure(G)
 

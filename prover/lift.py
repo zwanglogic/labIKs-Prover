@@ -119,14 +119,12 @@ def lifting(G: Sequent, f: LFormula, layer: set[Label]) -> Sequent:
         "lifting only implemented for Imp_out and Box_out")
 
 
-def lifting_with_tree(Gi: Sequent, f: LFormula, layer: set[Label]) -> ProofNode:
-    """
-    Visualize one lifting step as a unary proof tree.
-    """
-    G_lifted = lifting(Gi, f, layer)
+def lifting_with_tree(Gi, f, layer, G_lifted=None):
+    if G_lifted is None:
+        G_lifted = lifting(Gi, f, layer)
 
     return ProofNode(
         sequent=Gi,
         rule="rule_lift",
-        children=[ProofNode(sequent=G_lifted)]
+        children=[ProofNode(sequent=G_lifted)],
     )
