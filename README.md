@@ -1,4 +1,6 @@
 # labIK<sup>s</sup> Prover
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21402381.svg)](https://doi.org/10.5281/zenodo.21402381)
+
 This is a prover for the fully labelled sequent calculus **labIK<sup>s</sup>**. 
 
 It supports:
