@@ -257,8 +257,6 @@ def export_model_to_latex_document(
     return rf"""
 \documentclass{{article}}
 
-\usepackage[english]{{babel}}
-\usepackage{{cite}}
 \usepackage[most]{{tcolorbox}}
 \usepackage{{amsthm}}
 
