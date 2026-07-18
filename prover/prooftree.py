@@ -261,7 +261,6 @@ def export_model_to_latex_document(
 \usepackage{{cite}}
 \usepackage[most]{{tcolorbox}}
 \usepackage{{amsthm}}
-\usepackage{{libertinus}}
 
 \tcolorboxenvironment{{proof}}{{
   colback=gray!10,
