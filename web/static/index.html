@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>labIKˢ Prover</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>labIK<sup>s</sup> Prover</h1>
+    </header>
+
+    <section class="panel input-panel">
+      <div class="editor-head">
+        <div>
+          <h2>Enter a formula</h2>
+        </div>
+        <button id="clear" type="button">Clear</button>
+      </div>
+
+      <div class="math-editor" id="editorShell">
+        <textarea id="formulaInput" rows="2" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Formula input" placeholder="Try: □(p → q) → (□p → □q)">p → p</textarea>
+        <div id="parseStatus" class="parse-status editor-status" aria-live="polite"></div>
+        <div id="suggestions" class="suggestions hidden" role="listbox"></div>
+      </div>
+
+      <div class="shortcut-bar" aria-label="Insert symbols">
+        <button type="button" data-insert="¬">¬</button>
+        <button type="button" data-insert="∧">∧</button>
+        <button type="button" data-insert="∨">∨</button>
+        <button type="button" data-insert="→">→</button>
+        <button type="button" data-insert="□">□</button>
+        <button type="button" data-insert="◇">◇</button>
+        <button type="button" data-insert="⊥">⊥</button>
+        <span class="keyboard-hint"><kbd>Enter</kbd> prove · <kbd>Ctrl</kbd>+<kbd>Space</kbd> suggestions</span>
+      </div>
+
+      <details class="syntax-help">
+        <summary>Input syntax</summary>
+        <div class="syntax-table-wrap">
+          <table class="syntax-table">
+            <thead>
+              <tr><th>Input</th><th>Symbol</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>bottom</code></td><td><span class="logic-symbol">⊥</span></td></tr>
+              <tr><td><code>neg</code></td><td><span class="logic-symbol">¬</span></td></tr>
+              <tr><td><code>and</code></td><td><span class="logic-symbol">∧</span></td></tr>
+              <tr><td><code>or</code></td><td><span class="logic-symbol">∨</span></td></tr>
+              <tr><td><code>imp</code></td><td><span class="logic-symbol">→</span></td></tr>
+              <tr><td><code>box</code></td><td><span class="logic-symbol">□</span></td></tr>
+              <tr><td><code>diamond</code></td><td><span class="logic-symbol">◇</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <div class="examples" aria-label="Examples">
+        <span class="palette-label">Examples</span>
+        <button data-example="p -> p">p → p</button>
+        <button data-example="box(p | !p)">□(p ∨ ¬p)</button>
+        <button data-example="((a ⊃ □b) ⊃ ⊥) ⊃ ⊥">((a ⊃ □b) ⊃ ⊥) ⊃ ⊥</button>
+        <button data-example="box(p -> q) -> (box p -> box q)">K axiom</button>
+      </div>
+
+      <div class="actions">
+        <label class="check"><input id="compilePdf" type="checkbox"> Compile PDFs when LaTeX is installed</label>
+        <button id="run" class="primary">Run prover</button>
+      </div>
+    </section>
+
+    <section id="result" class="panel result-panel hidden" aria-live="polite">
+      <div class="result-head">
+        <div><div class="eyebrow">RESULT</div><h2 id="verdict">Running…</h2></div>
+      </div>
+      <div id="error" class="error hidden"></div>
+      <section id="pdfPreview" class="pdf-preview hidden" aria-label="PDF preview">
+        <div class="pdf-preview-head">
+          <div><span class="eyebrow">PDF PREVIEW</span><h3 id="pdfPreviewTitle">countermodel.pdf</h3></div>
+          <a id="pdfPreviewOpen" target="_blank" rel="noopener">Open in new tab</a>
+        </div>
+        <iframe id="pdfFrame" title="Generated PDF preview"></iframe>
+        <p id="pdfFallback" class="pdf-fallback">Your browser cannot display the PDF inline. Use “Open in new tab”.</p>
+      </section>
+      <pre id="output"></pre>
+      <div id="artifactSection" class="hidden"><h3>Generated files</h3><div id="artifacts" class="artifacts"></div></div>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

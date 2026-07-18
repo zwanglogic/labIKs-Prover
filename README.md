@@ -8,6 +8,12 @@ It supports:
 * proof tree visualization, and 
 * countermodel extraction.
 
+## Update: a new feature!
+Try our lightweight web interface!
+```bash
+python3 run_web.py
+```
+
 ## Installation
 
 ### Requirements
