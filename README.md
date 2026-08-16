@@ -1,5 +1,7 @@
 # labIK<sup>s</sup> Prover
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21402381.svg)](https://doi.org/10.5281/zenodo.21402381)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21434256.svg)](https://doi.org/10.5281/zenodo.21434256)
+
+Presented at ESSLLI 2026 Student Session 2026.
 
 This is a prover for the fully labelled sequent calculus **labIK<sup>s</sup>**. 
 
